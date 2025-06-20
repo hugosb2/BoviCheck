@@ -13,7 +13,7 @@ class AppState:
         self.ai_settings = {
             "enabled": False,
             "api_key": os.getenv("GEMINI_API_KEY"),
-            "suggestions_on_dashboard": True,
+            "suggestions_on_dashboard": False,
         }
         self.chat_history = []
         self.current_chat_id = None
@@ -47,9 +47,13 @@ class AppState:
         default_ai_settings = {
             "enabled": False,
             "api_key": os.getenv("GEMINI_API_KEY"),
-            "suggestions_on_dashboard": True,
+            "suggestions_on_dashboard": False,
         }
-        self.ai_settings = data.get("ai_settings", default_ai_settings)
+        loaded_ai_settings = data.get("ai_settings", default_ai_settings)
+        # Garante que a chave api_key seja sempre carregada do ambiente se não estiver no arquivo
+        loaded_ai_settings.setdefault("api_key", os.getenv("GEMINI_API_KEY"))
+        self.ai_settings = loaded_ai_settings
+
 
         self.chat_history = data.get("chat_history", [])
 
