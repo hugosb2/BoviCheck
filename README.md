@@ -4,7 +4,7 @@
 ![Flet](https://img.shields.io/badge/Flet-0.28.3-green?style=for-the-badge&logo=flet)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-**BoviCheck** é um aplicativo de desktop e mobile multiplataforma, desenvolvido em Python com o framework Flet, projetado para ser o assistente definitivo de pecuaristas no cálculo e acompanhamento de índices zootécnicos essenciais para a gestão de rebanhos bovinos.
+**BoviCheck** é um aplicativo android, desenvolvido em Python com o framework Flet, projetado para ser o assistente definitivo de pecuaristas no cálculo e acompanhamento de índices zootécnicos essenciais para a gestão de rebanhos bovinos.
 
 O aplicativo integra uma interface moderna e intuitiva com a poderosa assistência da IA do Google Gemini, fornecendo não apenas cálculos precisos, mas também insights e sugestões para otimizar a produção.
 
