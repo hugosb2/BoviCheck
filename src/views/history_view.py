@@ -1,10 +1,62 @@
 import flet as ft
 from datetime import datetime
+import re
 
 def build_index_history_view(controller, index_name: str) -> ft.Container:
-    calculations = controller.app_state.calculated_indices.get(index_name, [])
+    all_calculations = controller.app_state.calculated_indices.get(index_name, [])
 
-    if not calculations:
+    controller.history_start_date_input = ft.TextField(
+        label="Data Inicial",
+        hint_text="DD/MM/AAAA",
+        border_color="outline",
+        cursor_color="primary",
+        on_change=controller.handle_date_input_change,
+        keyboard_type=ft.KeyboardType.NUMBER,
+        max_length=10
+    )
+    controller.history_end_date_input = ft.TextField(
+        label="Data Final",
+        hint_text="DD/MM/AAAA",
+        border_color="outline",
+        cursor_color="primary",
+        on_change=controller.handle_date_input_change,
+        keyboard_type=ft.KeyboardType.NUMBER,
+        max_length=10
+    )
+
+    filter_tile = ft.ExpansionTile(
+        title=ft.Text("Filtrar por Período", weight=ft.FontWeight.BOLD),
+        leading=ft.Icon(ft.Icons.FILTER_LIST_ROUNDED),
+        affinity=ft.TileAffinity.PLATFORM,
+        initially_expanded=False,
+        controls=[
+            ft.Container(
+                content=ft.Column([
+                    controller.history_start_date_input,
+                    controller.history_end_date_input,
+                    ft.Row(
+                        controls=[
+                            ft.TextButton(
+                                "Limpar",
+                                icon=ft.Icons.CLEAR,
+                                on_click=lambda e: controller.handle_clear_date_filter(e, index_name)
+                            ),
+                            ft.FilledButton(
+                                "Filtrar",
+                                icon=ft.Icons.FILTER_ALT,
+                                on_click=lambda e: controller.handle_apply_date_filter(e, index_name),
+                                expand=True
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.END
+                    )
+                ]),
+                padding=ft.padding.only(left=25, right=15, bottom=10, top=5)
+            )
+        ]
+    )
+
+    if not all_calculations:
         return ft.Container(
             content=ft.Column(
                 [ft.Text(f"Nenhum valor encontrado para '{index_name}'.", weight=ft.FontWeight.BOLD)],
@@ -17,12 +69,12 @@ def build_index_history_view(controller, index_name: str) -> ft.Container:
 
     try:
         sorted_calcs = sorted(
-            calculations,
+            all_calculations,
             key=lambda x: datetime.strptime(f"{x.get('Data','')} {x.get('Hora','')}", "%d/%m/%Y %H:%M"),
             reverse=True
         )
     except (ValueError, KeyError):
-        sorted_calcs = calculations
+        sorted_calcs = all_calculations
 
     controller.history_details_container = ft.Container(
         content=ft.Text("Clique em uma barra para ver detalhes.", italic=True, text_align=ft.TextAlign.CENTER),
@@ -30,17 +82,20 @@ def build_index_history_view(controller, index_name: str) -> ft.Container:
     )
     
     chart = _build_bar_chart(controller, sorted_calcs, index_name)
+    
+    chart_container = ft.Container(
+        content=chart,
+        padding=10,
+        border=ft.border.all(1, ft.Colors.with_opacity(0.2, ft.Colors.OUTLINE)),
+        border_radius=8
+    )
+    controller.history_chart_container = chart_container
 
     column_content = ft.Column(
         [
-            ft.Text(f"Histórico: {index_name}", size=20, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+            filter_tile,
             ft.Divider(height=10),
-            ft.Container(
-                content=chart,
-                padding=10,
-                border=ft.border.all(1, ft.Colors.with_opacity(0.2, ft.Colors.OUTLINE)),
-                border_radius=8
-            ),
+            chart_container,
             ft.Divider(height=15),
             ft.Text("Detalhes da Medição", size=16, weight=ft.FontWeight.W_600),
             controller.history_details_container,
@@ -98,6 +153,18 @@ def build_index_history_view(controller, index_name: str) -> ft.Container:
     )
 
 def _build_bar_chart(controller, calcs: list, index_name: str) -> ft.Row:
+    if not calcs:
+        return ft.Row(
+            controls=[
+                ft.Container(
+                    content=ft.Text("Nenhum dado encontrado para o período selecionado.", italic=True),
+                    padding=20,
+                    alignment=ft.alignment.center
+                )
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        )
+
     bar_items, parsed_calcs, max_val = [], [], 0
     for calc in calcs:
         try:
@@ -108,9 +175,6 @@ def _build_bar_chart(controller, calcs: list, index_name: str) -> ft.Row:
         except (ValueError, IndexError):
             parsed_calcs.append({"value": 0, "data": calc})
     
-    if not parsed_calcs:
-        return ft.Row([ft.Text("Nenhum dado para exibir no gráfico.")])
-
     for item in parsed_calcs:
         calc_data = item["data"]
         bar_height = max(15, (item["value"] / max_val * 100)) if max_val > 0 else 15
@@ -146,7 +210,7 @@ def build_details_card(controller, calc_data, index_name) -> ft.Card:
                 ft.Text(f"Data: {calc_data.get('Data', 'N/A')} às {calc_data.get('Hora', 'N/A')}", size=13),
                 ft.Row([
                     ft.ElevatedButton("Editar", icon=ft.Icons.EDIT_OUTLINED, on_click=lambda _: controller.page.go(f"/index/{safe_name}/edit/{calc_data['id']}")),
-                    ft.FilledButton("Excluir", icon=ft.Icons.DELETE_OUTLINED, style=delete_button_style, on_click=lambda _: controller.page.go(f"/index/{safe_name}/delete_single/{calc_data['id']}/confirm"))
+                    ft.FilledButton("Excluir", icon=ft.Icons.DELETE_OUTLINE, style=delete_button_style, on_click=lambda _: controller.page.go(f"/index/{safe_name}/delete_single/{calc_data['id']}/confirm"))
                 ], alignment=ft.MainAxisAlignment.END)
             ]),
             padding=12

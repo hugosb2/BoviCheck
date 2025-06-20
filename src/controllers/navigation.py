@@ -31,7 +31,7 @@ class Navigation:
         if route.match("/ai/chat/:chat_id"):
             appbar.actions.extend([
                 ft.IconButton(
-                    ft.Icons.EDIT_OUTLINED, 
+                    ft.Icons.EDIT_OUTLINED,
                     on_click=self.controller.open_rename_dialog,
                     data=route.chat_id,
                     tooltip="Renomear Conversa"
@@ -59,6 +59,8 @@ class Navigation:
         if self.page.views:
             top_view = self.page.views[-1]
             self.page.go(top_view.route)
+        else:
+            self.page.go("/dashboard")
 
     def build_view_for_route(self, route: ft.TemplateRoute) -> ft.Control:
         from views import (

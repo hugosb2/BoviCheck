@@ -4,9 +4,10 @@ import requests
 import json
 from datetime import datetime
 import uuid
+import re
 
 from models import app_state, persistence, calculator, export_manager, definitions
-from views import main_view
+from views import main_view, history_view
 from utils import helpers
 from . import navigation
 
@@ -47,6 +48,10 @@ class MainController:
         self.indices_list_view = None
         self.current_input_fields = []
         self.history_details_container = None
+        self.history_start_date_input = None
+        self.history_end_date_input = None
+        self.history_chart_container = None
+        
         self.backup_checkboxes = {}
         self.spreadsheet_checkboxes = {}
         self.fm_current_path = os.path.expanduser("~") if os.name != 'posix' else "/storage/emulated/0"
@@ -84,7 +89,6 @@ class MainController:
             color_scheme_seed=color_seed,
             use_material3=True,
             font_family="OpenSans",
-            # >>> CORREÇÃO APLICADA AQUI: ft.ThemeVisualDensity -> ft.VisualDensity <<<
             visual_density=ft.VisualDensity.COMPACT,
         )
         if dark_theme.color_scheme:
@@ -96,7 +100,6 @@ class MainController:
                 [ft.Colors.BLACK, color_seed], [0.8, 0.2]
             )
         self.page.dark_theme = dark_theme
-
 
     def go_back(self, e=None):
         if len(self.page.views) > 1:
@@ -517,3 +520,89 @@ class MainController:
             return None, f"Erro de conexão com a API: {e}"
         except Exception as e:
             return None, f"Erro inesperado: {e}"
+
+    def _validate_and_filter_history(self, index_name):
+        start_date_str = self.history_start_date_input.value if self.history_start_date_input else ""
+        end_date_str = self.history_end_date_input.value if self.history_end_date_input else ""
+
+        def _validate(date_str):
+            if not date_str or not re.match(r"^\d{2}/\d{2}/\d{4}$", date_str): return None
+            try: return datetime.strptime(date_str, "%d/%m/%Y")
+            except ValueError: return None
+        
+        start_date = _validate(start_date_str)
+        end_date = _validate(end_date_str)
+
+        self.history_start_date_input.error_text = "Inválida" if start_date_str and not start_date else None
+        self.history_end_date_input.error_text = "Inválida" if end_date_str and not end_date else None
+        
+        if start_date and end_date and start_date > end_date:
+            self.history_start_date_input.error_text = "Inicial > Final"
+
+        self.history_start_date_input.update()
+        self.history_end_date_input.update()
+
+        if self.history_start_date_input.error_text or self.history_end_date_input.error_text:
+            return None
+
+        all_calcs = self.app_state.calculated_indices.get(index_name, [])
+        if not (start_date and end_date):
+            return all_calcs
+        
+        filtered = [
+            calc for calc in all_calcs
+            if start_date <= datetime.strptime(calc.get('Data', '01/01/1900'), "%d/%m/%Y") <= end_date
+        ]
+        return filtered
+
+    def handle_apply_date_filter(self, e, index_name: str):
+        if not self.history_chart_container: return
+
+        filtered_calcs = self._validate_and_filter_history(index_name)
+        
+        if filtered_calcs is not None:
+            sorted_calcs = sorted(
+                filtered_calcs,
+                key=lambda x: datetime.strptime(f"{x.get('Data','')} {x.get('Hora','')}", "%d/%m/%Y %H:%M"),
+                reverse=True
+            )
+            new_chart = history_view._build_bar_chart(self, sorted_calcs, index_name)
+            self.history_chart_container.content = new_chart
+            self.history_chart_container.update()
+
+    def handle_clear_date_filter(self, e, index_name: str):
+        if self.history_start_date_input:
+            self.history_start_date_input.value = ""
+            self.history_start_date_input.error_text = None
+            self.history_start_date_input.update()
+        if self.history_end_date_input:
+            self.history_end_date_input.value = ""
+            self.history_end_date_input.error_text = None
+            self.history_end_date_input.update()
+
+        if not self.history_chart_container: return
+        all_calcs = self.app_state.calculated_indices.get(index_name, [])
+        sorted_calcs = sorted(
+            all_calcs,
+            key=lambda x: datetime.strptime(f"{x.get('Data','')} {x.get('Hora','')}", "%d/%m/%Y %H:%M"),
+            reverse=True
+        )
+        new_chart = history_view._build_bar_chart(self, sorted_calcs, index_name)
+        self.history_chart_container.content = new_chart
+        self.history_chart_container.update()
+
+    def handle_date_input_change(self, e: ft.ControlEvent):
+        field = e.control
+        clean_text = "".join(filter(str.isdigit, field.value))
+        
+        new_text = ""
+        if len(clean_text) > 0:
+            new_text = clean_text[:2]
+        if len(clean_text) > 2:
+            new_text += "/" + clean_text[2:4]
+        if len(clean_text) > 4:
+            new_text += "/" + clean_text[4:8]
+
+        if new_text != field.value:
+            field.value = new_text
+            field.update()
