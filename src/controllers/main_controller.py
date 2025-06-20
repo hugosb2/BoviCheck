@@ -14,15 +14,22 @@ class MainController:
     def __init__(self, page: ft.Page):
         self.page = page
         self.app_state = app_state.AppState()
+
+        # >>> CORREÇÃO APLICADA AQUI <<<
+        # Carrega o estado salvo ANTES de criar a View.
+        # Isso garante que o menu de navegação e outras partes da UI
+        # sejam construídos com os dados corretos (ex: IA habilitada).
+        persistence.load_state(self.app_state)
+
         self.calculator = calculator.IndexCalculator()
         self.view = main_view.MainView(self)
         self.navigation = navigation.Navigation(self)
         self.ai_chat_messages_list = ft.ListView(expand=True, auto_scroll=True, spacing=10)
         self.ai_chat_input = ft.TextField(
-            hint_text="Pergunte algo...", 
-            expand=True, 
-            on_submit=self.handle_send_ai_chat_message, 
-            border_radius=20, 
+            hint_text="Pergunte algo...",
+            expand=True,
+            on_submit=self.handle_send_ai_chat_message,
+            border_radius=20,
             content_padding=12,
             border_color="outline",
             focused_border_color="primary",
@@ -30,9 +37,9 @@ class MainController:
         )
         self.ai_chat_loading_indicator = ft.ProgressRing(visible=False, width=20, height=20, stroke_width=2.5)
         self.ai_chat_send_button = ft.IconButton(ft.Icons.SEND_ROUNDED, on_click=self.handle_send_ai_chat_message, tooltip="Enviar")
-        
+
         self.ai_enabled_switch = ft.Switch(
-            label="Habilitar IA (global)", 
+            label="Habilitar IA (global)",
             on_change=self.handle_ai_enabled_change
         )
         self.ai_dashboard_switch = ft.Switch(
@@ -58,7 +65,8 @@ class MainController:
         self.rename_chat_textfield = None
         self.chat_id_to_rename = None
 
-        persistence.load_state(self.app_state)
+        # A linha de carregamento foi movida para cima.
+        # Agora aplicamos o tema com base no estado já carregado.
         self._apply_initial_theme()
 
     def _apply_initial_theme(self):
@@ -98,21 +106,21 @@ class MainController:
         self.app_state.ai_settings["suggestions_on_dashboard"] = e.control.value
         persistence.save_state(self.app_state)
         self.page.open(ft.SnackBar(ft.Text(f"Sugestões no Dashboard {'Habilitadas' if e.control.value else 'Desabilitadas'}.")))
-        
+
     def get_all_indices(self):
         return definitions.INDICES
 
     def to_safe_route(self, name: str) -> str:
         return helpers.to_safe_route_param(name)
-    
+
     def update_indices_list(self, query: str = ""):
         if not self.indices_list_view: return
         from views import indices_list_view
-        
+
         all_indices = self.get_all_indices()
         query = query.lower().strip()
         filtered = [idx for idx in all_indices if not query or query in idx["Índice"].lower()]
-        
+
         self.indices_list_view.controls = [indices_list_view.create_index_list_item(self, idx) for idx in filtered]
         if self.indices_list_view.page: self.indices_list_view.update()
 
@@ -126,7 +134,7 @@ class MainController:
             else: self.current_input_fields[i].error_text = None
         if any(f.error_text for f in self.current_input_fields):
             self.page.update(); return
-            
+
         try:
             result_entry = self.calculator.calculate(index_data, values)
             msg = ""
@@ -193,7 +201,7 @@ class MainController:
         if not selected_names:
             self.page.open(ft.SnackBar(ft.Text("Nenhum índice selecionado."), bgcolor=ft.Colors.AMBER))
             return
-        
+
         self.data_to_save = export_manager.backup_to_json_string(self.app_state.calculated_indices, selected_names)
         self.fm_save_type = "backup"
         self.fm_initial_filename = f"bovicheck_backup_{datetime.now().strftime('%Y%m%d')}.json"
@@ -226,7 +234,7 @@ class MainController:
             with open(e.files[0].path, "r", encoding='utf-8') as f:
                 json_string = f.read()
             success, message, restored_data = export_manager.restore_from_json_string(json_string)
-            
+
             if success:
                 items_added = 0
                 for index_name, restored_calcs in restored_data.items():
@@ -244,7 +252,7 @@ class MainController:
                 self.page.go("/dashboard")
             else:
                 self.page.open(ft.SnackBar(ft.Text(message), bgcolor=ft.Colors.ERROR))
-                
+
         except Exception as ex:
             self.page.open(ft.SnackBar(ft.Text(f"Erro ao ler arquivo: {ex}"), bgcolor=ft.Colors.ERROR))
 
@@ -315,7 +323,7 @@ class MainController:
             persistence.save_state(self.app_state)
             self.page.open(ft.SnackBar(ft.Text("Conversa apagada.")))
         self.page.go("/ai/history")
-        
+
     def open_rename_dialog(self, e):
         chat_id = e.control.data
         chat = self.app_state.get_chat_by_id(chat_id)
@@ -349,7 +357,7 @@ class MainController:
         elif not index_name:
             indices_to_process = self.app_state.calculated_indices
         if not indices_to_process: return ""
-        
+
         sorted_indices = sorted(indices_to_process.items())
         for name, results in sorted_indices:
             if results:
@@ -366,7 +374,7 @@ class MainController:
         user_text = self.ai_chat_input.value.strip()
         if not user_text: return
         if not self.app_state.current_chat_id: self.start_new_chat()
-        
+
         current_chat = self.app_state.get_current_chat()
         if not current_chat:
             return
@@ -377,7 +385,7 @@ class MainController:
 
         from views.ai_view import _create_chat_message_control
         cs = self.page.theme.color_scheme if self.page.theme else None
-        
+
         self.ai_chat_messages_list.controls.append(_create_chat_message_control(user_text, "user", cs))
         self.ai_chat_input.value = ""
         self.ai_chat_loading_indicator.visible = True
@@ -394,7 +402,7 @@ class MainController:
 
         prompt = "\n\n".join(prompt_parts)
         response, error = self.call_gemini_api_sync(prompt)
-        
+
         self.ai_chat_loading_indicator.visible = False
         self.ai_chat_send_button.disabled = False
         if error:
@@ -405,10 +413,10 @@ class MainController:
             ai_content = response
             current_chat["messages"].append({"role": "ai", "content": ai_content})
             self.ai_chat_messages_list.controls.append(_create_chat_message_control(ai_content, "ai", cs))
-        
+
         persistence.save_state(self.app_state)
         self.page.update()
-    
+
     def _handle_suggestion_flow(self, text_control, loading_control, continue_button, prompt_instruction, data_context):
         loading_control.visible = True
         text_control.value = ""
@@ -435,7 +443,7 @@ class MainController:
             e.control.disabled = False
             self.page.update()
             return
-        
+
         prompt_instruction = "Aja como um consultor agropecuário paciente e didático, falando com um produtor que está começando. Com base no resumo de dados a seguir, forneça uma sugestão clara e simples, explicando o porquê da sugestão de forma fácil de entender. Evite jargões técnicos."
         self._handle_suggestion_flow(text_control, loading_control, continue_button, prompt_instruction, data_context)
         e.control.disabled = False
@@ -451,7 +459,7 @@ class MainController:
             e.control.disabled = False
             self.page.update()
             return
-            
+
         prompt_instruction = f"Aja como um consultor agropecuário paciente, explicando para um produtor leigo. Com base nos dados do índice '{index_name}' a seguir, forneça uma dica prática e fácil de implementar para melhorar este resultado. Explique em termos simples por que essa dica é importante."
         self._handle_suggestion_flow(text_control, loading_control, continue_button, prompt_instruction, data_context)
         e.control.disabled = False
@@ -468,11 +476,11 @@ class MainController:
         api_key = self.app_state.ai_settings.get("api_key")
         if not self.app_state.ai_settings.get("enabled") or not api_key:
             return None, "A funcionalidade de IA está desabilitada ou a chave de API não foi configurada."
-        
+
         api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
         headers = {'Content-Type': 'application/json'}
         payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
-        
+
         try:
             response = requests.post(api_url, json=payload, headers=headers, timeout=45)
             response.raise_for_status()
@@ -481,7 +489,7 @@ class MainController:
                 content = result["candidates"][0].get("content", {})
                 if content.get("parts"):
                     return content["parts"][0].get("text", "").strip(), None
-            
+
             error_info = result.get('error', {})
             return None, f"Resposta inválida da API: {error_info.get('message', 'Formato desconhecido')}"
         except requests.exceptions.HTTPError as http_err:
