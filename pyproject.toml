@@ -1,0 +1,75 @@
+[project]
+name = "bovicheck"
+version = "0.9.4" # Updated to match UIComponents.VERSION_NUMBER
+description = "Um assistente para cálculo e acompanhamento de índices zootécnicos para bovinos."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Hugo Barros", email = "hugobs4987@gmail.com" }
+]
+dependencies = [
+    "flet==0.28.3",
+    "requests",
+    "pandas>=2.2.3",
+    "openpyxl==3.1.5",
+]
+
+[tool.flet]
+# org name in reverse domain name notation, e.g. "com.mycompany".
+# Combined with project.name to build bundle ID for iOS and Android apps
+org = "com.hugobarros"
+
+# project display name that is used as an app title on Android and iOS home screens,
+# shown in window titles and about app dialogs on desktop.
+product = "BoviCheck" # Corresponds to page.title "BoviCheck AI" (using "BoviCheck" for product name)
+
+# company name to display in about app dialogs
+company = "Hugo Barros"
+
+# copyright text to display in about app dialogs
+copyright = "Copyright (C) 2025 Hugo Barros" # Year can be updated if development extends
+
+[tool.flet.app]
+# Path to the main Python script or module.
+path = "src" # Assuming main.py is in the root of your project
+# If you have an 'assets' folder for images, icons (like icon.ico), etc., uncomment and set it:
+assets_dir = "assets" # Uncommented and set as main.py uses assets_dir="assets"
+
+[tool.flet.android]
+# Android specific package name for your app.
+# Conventionally: org_reversed.project_name
+package_name = "com.hugobarros.bovicheck"
+
+# App name as it appears on Android devices. Defaults to project.product.
+app_name = "BoviCheck" # Consistent with product name
+
+# Android permissions required by your app.
+permissions = [
+    "android.permission.INTERNET"
+]
+
+# Set to true to add android:requestLegacyExternalStorage="true" to AndroidManifest.xml.
+# Useful for apps targeting Android 10 (API 29) that need the legacy storage model.
+# For Android 11 (API 30) and above, this has limited effect.
+legacy_storage = true
+
+# You can also specify the target SDK version if needed:
+# target_sdk_version = 33
+# min_sdk_version = 21
+
+
+[tool.uv] # Assuming this section is for uv, a Python package installer/resolver
+dev-dependencies = [
+    "flet[all]==0.28.3",
+    "requests",
+    "pandas>=2.2.3",
+    "openpyxl==3.1.5"
+]
+
+[tool.poetry] # This section seems to conflict with [project] if both are meant for packaging.
+              # If using Hatch/setuptools with [project], this might be for Poetry as a dev tool.
+              # If Poetry is the primary build system, [project] might be redundant or for a different tool.
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+flet = {extras = ["all"], version = "0.28.3"}
