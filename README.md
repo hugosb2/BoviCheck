@@ -51,7 +51,7 @@ Para executar o BoviCheck em seu ambiente de desenvolvimento local, siga os pass
 
 **1. Clone o Repositório**
 ```bash
-git clone [https://github.com/seu-usuario/BoviCheck.git](https://github.com/seu-usuario/BoviCheck.git)
+git clone [https://github.com/hugosb2/BoviCheck.git](https://github.com/hugosb2/BoviCheck.git)
 cd BoviCheck
 ```
 
