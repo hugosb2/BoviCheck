@@ -8,12 +8,6 @@
 
 O aplicativo integra uma interface moderna e intuitiva com a poderosa assistência da IA do Google Gemini, fornecendo não apenas cálculos precisos, mas também insights e sugestões para otimizar a produção.
 
-## 🖼️ Telas do Aplicativo
-
-<p align="center">
-  <img src="https://i.imgur.com/3ee3e0c.png" width="250" alt="Tela de Configurações de IA">
-  </p>
-
 ## ✨ Funcionalidades
 
 O BoviCheck oferece um conjunto robusto de ferramentas para a gestão zootécnica:
