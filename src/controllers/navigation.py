@@ -118,21 +118,22 @@ class Navigation:
         return ft.Text("Página não encontrada")
 
     def get_app_bar_title(self, route: ft.TemplateRoute, chat_title: str) -> str:
+        index_routes = [
+            "/index/:name/history",
+            "/index/:name/calculate",
+            "/index/:name/edit/:calc_id",
+            "/index/:name/delete_all_confirm",
+            "/index/:name/delete_single/:calc_id/confirm"
+        ]
+        
+        for index_route in index_routes:
+            if route.match(index_route):
+                return helpers.from_safe_route_param(route.name)
+
         if route.match("/dashboard"): return "Dashboard Principal"
         if route.match("/indices"): return "Índices Zootécnicos"
-        if route.match("/index/:name/history"):
-            name = helpers.from_safe_route_param(route.name)
-            return f"Histórico: {definitions.APPBAR_SHORT_NAMES.get(name, name)}"
         if route.match("/about"): return "Sobre o BoviCheck"
-        if route.match("/index/:name/calculate"):
-            name = helpers.from_safe_route_param(route.name)
-            return f"Calcular: {definitions.APPBAR_SHORT_NAMES.get(name, name)}"
-        if route.match("/index/:name/edit/:calc_id"):
-            name = helpers.from_safe_route_param(route.name)
-            return f"Editar: {definitions.APPBAR_SHORT_NAMES.get(name, name)}"
-        if route.match("/index/:name/delete_all_confirm"):
-            return "Confirmar Exclusão"
-
+        
         if route.match("/ai/history"): return "Histórico do Chat"
         if route.match("/ai/chat/:chat_id"): return chat_title
         if route.match("/ai/chat/delete/:chat_id/confirm"): return "Apagar Conversa"
