@@ -105,4 +105,4 @@ Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICEN
 
 Hugo Barros – [hugobs4987@gmail.com](mailto:hugobs4987@gmail.com)
 
-Link do Projeto: [https://github.com/seu-usuario/BoviCheck](https://github.com/seu-usuario/BoviCheck)
+Link do Projeto: [https://github.com/seu-usuario/BoviCheck](https://github.com/hugosb2/BoviCheck)
