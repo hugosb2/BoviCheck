@@ -15,10 +15,6 @@ class MainController:
         self.page = page
         self.app_state = app_state.AppState()
 
-        # >>> CORREÇÃO APLICADA AQUI <<<
-        # Carrega o estado salvo ANTES de criar a View.
-        # Isso garante que o menu de navegação e outras partes da UI
-        # sejam construídos com os dados corretos (ex: IA habilitada).
         persistence.load_state(self.app_state)
 
         self.calculator = calculator.IndexCalculator()
@@ -65,8 +61,6 @@ class MainController:
         self.rename_chat_textfield = None
         self.chat_id_to_rename = None
 
-        # A linha de carregamento foi movida para cima.
-        # Agora aplicamos o tema com base no estado já carregado.
         self._apply_initial_theme()
 
     def _apply_initial_theme(self):
@@ -74,10 +68,35 @@ class MainController:
         self.page.theme_mode = prefs.get("theme_mode", ft.ThemeMode.SYSTEM)
         color_name = prefs.get("primary_color_name", "TEAL_ACCENT_700")
         color_seed = getattr(ft.Colors, color_name, ft.Colors.TEAL_ACCENT_700)
-        theme = ft.Theme(color_scheme_seed=color_seed, use_material3=True, font_family="OpenSans")
-        self.page.theme = theme
-        dark_theme = ft.Theme(color_scheme_seed=color_seed, use_material3=True, font_family="OpenSans")
+
+        light_theme = ft.Theme(
+            color_scheme_seed=color_seed,
+            use_material3=True,
+            font_family="OpenSans"
+        )
+        if light_theme.color_scheme:
+            light_theme.color_scheme.background = ft.colors.blend_colors(
+                [light_theme.color_scheme.background, color_seed], [0.9, 0.1]
+            )
+        self.page.theme = light_theme
+
+        dark_theme = ft.Theme(
+            color_scheme_seed=color_seed,
+            use_material3=True,
+            font_family="OpenSans",
+            # >>> CORREÇÃO APLICADA AQUI: ft.ThemeVisualDensity -> ft.VisualDensity <<<
+            visual_density=ft.VisualDensity.COMPACT,
+        )
+        if dark_theme.color_scheme:
+            dark_theme.color_scheme.primary = color_seed
+            dark_theme.color_scheme.background = ft.colors.blend_colors(
+                [ft.Colors.BLACK, color_seed], [0.85, 0.15]
+            )
+            dark_theme.color_scheme.surface = ft.colors.blend_colors(
+                [ft.Colors.BLACK, color_seed], [0.8, 0.2]
+            )
         self.page.dark_theme = dark_theme
+
 
     def go_back(self, e=None):
         if len(self.page.views) > 1:

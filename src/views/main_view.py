@@ -18,31 +18,47 @@ class MainView:
             controls=[
                 ft.ListTile(
                     title=ft.Text(
-                        "Menu Principal", 
-                        size=20, 
-                        weight=ft.FontWeight.BOLD, 
+                        "Menu Principal",
+                        size=20,
+                        weight=ft.FontWeight.BOLD,
                         color="primary"
                     ),
-                    dense=True, 
-                    disabled=True, 
+                    dense=True,
+                    disabled=True,
                     content_padding=ft.padding.only(left=16, top=12, bottom=8)
                 ),
                 ft.Divider(),
-                ft.NavigationDrawerDestination(icon=ft.Icons.DASHBOARD_OUTLINED, label="Dashboard"),
-                ft.NavigationDrawerDestination(icon=ft.Icons.TRENDING_UP_OUTLINED, label="Índices"),
+
                 ft.NavigationDrawerDestination(
-                    icon=ft.Icons.CHAT_BUBBLE_OUTLINE_ROUNDED, 
+                    icon=ft.Icon(ft.Icons.DASHBOARD_OUTLINED, color="primary"),
+                    label="Dashboard"
+                ),
+                ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.TRENDING_UP_OUTLINED, color="primary"),
+                    label="Índices"
+                ),
+                ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.CHAT_BUBBLE_OUTLINE_ROUNDED, color="primary"),
                     label="Histórico do Chat",
                     disabled=not ai_enabled
                 ),
                 ft.Divider(),
-                ft.NavigationDrawerDestination(icon=ft.Icons.SETTINGS_OUTLINED, label="Configurações"),
-                ft.NavigationDrawerDestination(icon=ft.Icons.INFO_OUTLINE, label="Sobre"),
+                ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.SETTINGS_OUTLINED, color="primary"),
+                    label="Configurações"
+                ),
+                ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.INFO_OUTLINE, color="primary"),
+                    label="Sobre"
+                ),
                 ft.Divider(),
-                ft.NavigationDrawerDestination(icon=ft.Icons.EXIT_TO_APP_ROUNDED, label="Sair"),
+                ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.EXIT_TO_APP_ROUNDED, color="primary"),
+                    label="Sair"
+                ),
             ]
         )
-    
+
     def rebuild_drawer(self):
         self.page.drawer = self._create_navigation_drawer()
         self.page.update()
@@ -54,24 +70,24 @@ class MainView:
     def create_app_bar(self, title: str, show_back_button: bool = False) -> ft.AppBar:
         leading_icon = ft.IconButton(
             ft.Icons.ARROW_BACK_IOS_NEW_ROUNDED, on_click=self.controller.go_back,
-            tooltip="Voltar", 
+            tooltip="Voltar",
             icon_color="onPrimary"
         ) if show_back_button else ft.IconButton(
             ft.Icons.MENU_ROUNDED,
             on_click=self.open_drawer,
-            tooltip="Menu", 
+            tooltip="Menu",
             icon_color="onPrimary"
         )
-        
+
         return ft.AppBar(
-            leading=leading_icon, 
+            leading=leading_icon,
             title=ft.Text(
-                title, 
-                weight=ft.FontWeight.BOLD, 
+                title,
+                weight=ft.FontWeight.BOLD,
                 color="onPrimary"
-            ), 
+            ),
             bgcolor="primary",
-            center_title=False, 
+            center_title=False,
             elevation=2,
             actions=[]
         )

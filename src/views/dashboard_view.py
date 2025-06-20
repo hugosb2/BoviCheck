@@ -20,10 +20,10 @@ def build_dashboard_view(controller) -> ft.ListView:
     
     quick_actions_title = ft.Text("Ações Rápidas", size=18, weight=ft.FontWeight.BOLD)
     quick_actions = ft.Card(ft.Container(ft.Column([
-        ft.ListTile(leading=ft.Icon(ft.Icons.ADD_CHART), title=ft.Text("Calcular Novo Índice"), on_click=lambda _: controller.page.go("/indices")),
-        ft.ListTile(leading=ft.Icon(ft.Icons.CHAT_BUBBLE_OUTLINE), title=ft.Text("Histórico do Chat"), on_click=lambda _: controller.page.go("/ai/history"), disabled=not state.ai_settings.get("enabled")),
-        # >>> ÍCONE CORRIGIDO AQUI <<<
-        ft.ListTile(leading=ft.Icon(ft.Icons.SETTINGS_OUTLINED), title=ft.Text("Configurações"), on_click=lambda _: controller.page.go("/settings/general")),
+        # >>> ÍCONES COLORIDOS AQUI <<<
+        ft.ListTile(leading=ft.Icon(ft.Icons.ADD_CHART, color="primary"), title=ft.Text("Calcular Novo Índice"), on_click=lambda _: controller.page.go("/indices")),
+        ft.ListTile(leading=ft.Icon(ft.Icons.CHAT_BUBBLE_OUTLINE, color="primary"), title=ft.Text("Histórico do Chat"), on_click=lambda _: controller.page.go("/ai/history"), disabled=not state.ai_settings.get("enabled")),
+        ft.ListTile(leading=ft.Icon(ft.Icons.SETTINGS_OUTLINED, color="primary"), title=ft.Text("Configurações"), on_click=lambda _: controller.page.go("/settings/general")),
     ]), padding=ft.padding.symmetric(vertical=10)))
     
     dashboard_list.controls.extend([quick_actions_title, quick_actions])
@@ -150,4 +150,4 @@ def _get_index_icon(index_name: str, result_value: str) -> ft.Icon:
     elif "Lotação" in index_name: icon_name = ft.Icons.GROUP_WORK_OUTLINED
     elif "Leite" in index_name: icon_name = ft.Icons.WATER_DROP_OUTLINED
     else: icon_name = ft.Icons.TRENDING_UP
-    return ft.Icon(name=icon_name, size=24)
+    return ft.Icon(name=icon_name, size=24, color="primary")

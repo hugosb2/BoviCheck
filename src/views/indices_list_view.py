@@ -39,7 +39,7 @@ def create_index_list_item(controller, index_data: dict) -> ft.Card:
 
     return ft.Card(
         content=ft.ListTile(
-            leading=ft.Icon(icon_name),
+            leading=ft.Icon(icon_name, color="primary"),
             title=ft.Text(index_data["Índice"], weight=ft.FontWeight.BOLD),
             subtitle=ft.Text(index_data["Inputs"], max_lines=1, overflow=ft.TextOverflow.ELLIPSIS),
             trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS_ROUNDED),
