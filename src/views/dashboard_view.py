@@ -22,7 +22,8 @@ def build_dashboard_view(controller) -> ft.ListView:
     quick_actions = ft.Card(ft.Container(ft.Column([
         ft.ListTile(leading=ft.Icon(ft.Icons.ADD_CHART), title=ft.Text("Calcular Novo Índice"), on_click=lambda _: controller.page.go("/indices")),
         ft.ListTile(leading=ft.Icon(ft.Icons.CHAT_BUBBLE_OUTLINE), title=ft.Text("Histórico do Chat"), on_click=lambda _: controller.page.go("/ai/history"), disabled=not state.ai_settings.get("enabled")),
-        ft.ListTile(leading=ft.Icon(ft.Icons.SETTINGS), title=ft.Text("Configurações"), on_click=lambda _: controller.page.go("/settings/general")),
+        # >>> ÍCONE CORRIGIDO AQUI <<<
+        ft.ListTile(leading=ft.Icon(ft.Icons.SETTINGS_OUTLINED), title=ft.Text("Configurações"), on_click=lambda _: controller.page.go("/settings/general")),
     ]), padding=ft.padding.symmetric(vertical=10)))
     
     dashboard_list.controls.extend([quick_actions_title, quick_actions])
