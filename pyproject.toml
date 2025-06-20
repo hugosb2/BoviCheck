@@ -29,7 +29,9 @@ assets_dir = "assets"
 package_name = "com.hugobarros.bovicheck"
 app_name = "BoviCheck"
 permissions = [
-    "android.permission.INTERNET"
+    "android.permission.INTERNET",
+    "android.permission.MANAGE_EXTERNAL_STORAGE"
+
 ]
 legacy_storage = true
 
