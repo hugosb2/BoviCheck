@@ -28,18 +28,6 @@ class Navigation:
 
         appbar = self.controller.view.create_app_bar(title=app_bar_title, show_back_button=not is_top_level)
 
-        if route.match("/ai/chat/:chat_id"):
-            appbar.actions.extend([
-                ft.IconButton(
-                    ft.Icons.EDIT_OUTLINED,
-                    on_click=self.controller.open_rename_dialog,
-                    data=route.chat_id,
-                    tooltip="Renomear Conversa"
-                ),
-                ft.IconButton(ft.Icons.ADD_COMMENT_OUTLINED, on_click=self.controller.start_new_chat, tooltip="Nova Conversa"),
-                ft.IconButton(ft.Icons.HISTORY_ROUNDED, on_click=lambda _: self.page.go("/ai/history"), tooltip="Histórico"),
-            ])
-
         content = self.build_view_for_route(route)
 
         self.page.views.append(
