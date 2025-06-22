@@ -1,6 +1,6 @@
 [project]
 name = "bovicheck"
-version = "0.9.8"
+version = "0.9.9"
 description = "Um assistente para cálculo e acompanhamento de índices zootécnicos para bovinos."
 readme = "README.md"
 requires-python = ">=3.9"

@@ -1,6 +1,6 @@
 import flet as ft
 
-VERSION_NUMBER = "0.9.8"
+VERSION_NUMBER = "0.9.9"
 BUILD_TAG = "Stable"
 
 INDICES = [
