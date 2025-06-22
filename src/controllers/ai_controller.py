@@ -2,7 +2,7 @@ import flet as ft
 import requests
 import uuid
 from datetime import datetime
-from models import persistence
+from models import persistence, prompts
 
 class AIController:
     def __init__(self, main_controller):
@@ -127,9 +127,9 @@ class AIController:
         self.main.ai_chat_send_button.disabled = True
         self.page.update()
 
-        system_instruction = "Você é um assistente especialista em agropecuária e análise de dados zootécnicos."
+        system_instruction = prompts.SYSTEM_INSTRUCTION
         data_context = self._format_data_for_ai()
-        user_question = f"Com base no contexto de dados fornecido (se houver), responda à seguinte pergunta do usuário: {user_text}"
+        user_question = prompts.get_chat_user_question_prompt(user_text)
         
         prompt_parts = [system_instruction]
         if data_context: prompt_parts.append(data_context)
@@ -179,7 +179,7 @@ class AIController:
             self.page.update()
             return
 
-        prompt_instruction = "Aja como um consultor agropecuário paciente e didático, falando com um produtor que está começando. Com base no resumo de dados a seguir, forneça uma sugestão clara e simples, explicando o porquê da sugestão de forma fácil de entender. Evite jargões técnicos."
+        prompt_instruction = prompts.DASHBOARD_SUGGESTION_PROMPT
         self._handle_suggestion_flow(text_control, loading_control, continue_button, prompt_instruction, data_context)
         e.control.disabled = False
         self.page.update()
@@ -194,8 +194,8 @@ class AIController:
             e.control.disabled = False
             self.page.update()
             return
-
-        prompt_instruction = f"Aja como um consultor agropecuário paciente, explicando para um produtor leigo. Com base nos dados do índice '{index_name}' a seguir, forneça uma dica prática e fácil de implementar para melhorar este resultado. Explique em termos simples por que essa dica é importante."
+            
+        prompt_instruction = prompts.get_index_suggestion_prompt(index_name)
         self._handle_suggestion_flow(text_control, loading_control, continue_button, prompt_instruction, data_context)
         e.control.disabled = False
         self.page.update()
