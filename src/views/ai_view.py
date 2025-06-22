@@ -1,6 +1,21 @@
 import flet as ft
+import os
+import math
+
+def _format_file_size(size_bytes):
+    if size_bytes <= 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {size_name[i]}"
 
 def build_ai_chat_view(controller, chat_id: str) -> ft.Container:
+    chat_file_picker = ft.FilePicker(on_result=lambda e: handle_file_picked(e, controller))
+    if chat_file_picker not in controller.page.overlay:
+        controller.page.overlay.append(chat_file_picker)
+
     _create_chat_message_control.page = controller.page
     
     controller.app_state.current_chat_id = chat_id
@@ -12,11 +27,23 @@ def build_ai_chat_view(controller, chat_id: str) -> ft.Container:
     if not controller.app_state.ai_settings.get("enabled", False):
         msg = "A funcionalidade de IA está desabilitada. Ative-a em Configurações."
         controller.ai_chat_messages_list.controls.append(_create_chat_message_control(msg, "system", cs))
-    elif current_chat and current_chat['messages']:
+    elif current_chat and current_chat.get('messages'):
         for message in current_chat['messages']:
-            controller.ai_chat_messages_list.controls.append(
-                _create_chat_message_control(message['content'], message['role'], cs)
-            )
+            content = message.get("content", "")
+            role = message.get("role", "system")
+            caption = message.get("caption", "")
+            if message.get("type") == "image":
+                controller.ai_chat_messages_list.controls.append(
+                    _create_image_message_control(content, caption, role, cs)
+                )
+            elif message.get("type") == "file":
+                controller.ai_chat_messages_list.controls.append(
+                    _create_file_message_control(content, role, cs)
+                )
+            else:
+                controller.ai_chat_messages_list.controls.append(
+                    _create_chat_message_control(content, role, cs)
+                )
     else:
         msg = "Olá! Como posso ajudar com seus dados agropecuários hoje?"
         controller.ai_chat_messages_list.controls.append(_create_chat_message_control(msg, "ai", cs))
@@ -29,6 +56,14 @@ def build_ai_chat_view(controller, chat_id: str) -> ft.Container:
                 border_radius=8
             ),
             ft.Row([
+                ft.IconButton(
+                    icon=ft.Icons.ATTACH_FILE_ROUNDED,
+                    tooltip="Anexar arquivo",
+                    on_click=lambda _: chat_file_picker.pick_files(
+                        allow_multiple=False,
+                        allowed_extensions=["png", "jpg", "jpeg", "pdf", "txt", "docx", "xlsx", "csv"]
+                    )
+                ),
                 controller.ai_chat_input, 
                 controller.ai_chat_loading_indicator, 
                 controller.ai_chat_send_button
@@ -37,15 +72,66 @@ def build_ai_chat_view(controller, chat_id: str) -> ft.Container:
     )
     return ft.Container(content=chat_column, padding=15, expand=True)
 
+def handle_file_picked(e: ft.FilePickerResultEvent, controller):
+    if not e.files:
+        return
+    file_path = e.files[0].path
+    if file_path:
+        open_caption_dialog(file_path, controller)
+
+def open_caption_dialog(file_path: str, controller):
+    caption_textfield = ft.TextField(
+        label="Legenda ou pergunta sobre o arquivo (opcional)",
+        autofocus=True,
+        shift_enter=True,
+        min_lines=1,
+        max_lines=3,
+    )
+
+    image_extensions = {".png", ".jpg", ".jpeg"}
+    file_ext = os.path.splitext(file_path)[1].lower()
+    
+    if file_ext in image_extensions:
+        preview_widget = ft.Image(src=file_path, height=150, fit=ft.ImageFit.CONTAIN, border_radius=8)
+    else:
+        filename = os.path.basename(file_path)
+        preview_widget = ft.ListTile(
+            leading=ft.Icon(ft.Icons.INSERT_DRIVE_FILE_OUTLINED, size=40),
+            title=ft.Text(filename, weight=ft.FontWeight.BOLD),
+            subtitle=ft.Text("Arquivo a ser enviado")
+        )
+
+    def close_dialog(e):
+        dialog.open = False
+        controller.page.update()
+
+    def send_with_caption(e):
+        caption = caption_textfield.value or ""
+        controller.ai_controller.handle_file_submission(file_path, caption)
+        close_dialog(e)
+
+    dialog = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Anexar Arquivo"),
+        content=ft.Column([preview_widget, caption_textfield], tight=True, spacing=15),
+        actions=[
+            ft.TextButton("Cancelar", on_click=close_dialog),
+            ft.FilledButton("Enviar Anexo", on_click=send_with_caption),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    controller.page.open(dialog)
+
 def _create_chat_message_control(text: str, role: str, cs) -> ft.Row:
     is_user = role == "user"
-
+    
     message_widget = ft.Markdown(
         value=text,
         selectable=True,
         extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
     )
-
+    
     if is_user:
         bubble_bgcolor = ft.Colors.with_opacity(0.05, ft.Colors.ON_SURFACE)
     else:
@@ -60,17 +146,74 @@ def _create_chat_message_control(text: str, role: str, cs) -> ft.Row:
     )
 
     if is_user:
-        controls = [
-            ft.Container(expand=1),
-            ft.Container(content=message_bubble, expand=4)
-        ]
+        controls = [ft.Container(expand=1), ft.Container(content=message_bubble, expand=4)]
     else:
-        controls = [
-            ft.Container(content=message_bubble, expand=4),
-            ft.Container(expand=1)
-        ]
+        controls = [ft.Container(content=message_bubble, expand=4), ft.Container(expand=1)]
     
     return ft.Row(controls)
+
+def _create_image_message_control(file_path: str, caption: str, role: str, cs) -> ft.Row:
+    is_user = role == "user"
+    
+    image_content = [
+        ft.Image(
+            src=file_path,
+            border_radius=ft.border_radius.only(top_left=12, top_right=12),
+            width=260,
+            fit=ft.ImageFit.CONTAIN
+        )
+    ]
+    if caption:
+        image_content.append(
+            ft.Container(
+                content=ft.Text(caption, selectable=True, size=13),
+                padding=ft.padding.symmetric(horizontal=10, vertical=8),
+            )
+        )
+        
+    image_container = ft.Container(
+        content=ft.Column(image_content, spacing=0),
+        border=ft.border.all(1, ft.Colors.with_opacity(0.2, "outline")),
+        border_radius=12,
+        clip_behavior=ft.ClipBehavior.HARD_EDGE,
+    )
+    
+    if is_user:
+        controls = [ft.Container(expand=1), ft.Container(content=image_container)]
+    else:
+        controls = [ft.Container(content=image_container), ft.Container(expand=1)]
+    
+    return ft.Row(controls, alignment=ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START)
+
+def _create_file_message_control(file_path: str, role: str, cs) -> ft.Row:
+    is_user = role == "user"
+    filename = os.path.basename(file_path)
+    
+    try:
+        size_in_bytes = os.path.getsize(file_path)
+        filesize_str = _format_file_size(size_in_bytes)
+    except OSError:
+        filesize_str = "Tamanho desconhecido"
+
+    file_card = ft.Card(
+        content=ft.Container(
+            content=ft.ListTile(
+                leading=ft.Icon(ft.Icons.INSERT_DRIVE_FILE_OUTLINED, size=30),
+                title=ft.Text(filename, weight=ft.FontWeight.BOLD, size=14, no_wrap=True),
+                subtitle=ft.Text(f"Arquivo anexado - {filesize_str}", size=12),
+            ),
+            padding=ft.padding.symmetric(vertical=5, horizontal=10)
+        ),
+        elevation=1.5,
+        width=280
+    )
+
+    if is_user:
+        controls = [ft.Container(expand=1), file_card]
+    else:
+        controls = [file_card, ft.Container(expand=1)]
+    
+    return ft.Row(controls, alignment=ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START)
 
 def build_ai_settings_view(controller) -> ft.Container:
     state = controller.app_state
