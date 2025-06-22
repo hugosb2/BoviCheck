@@ -3,6 +3,7 @@ from controllers.main_controller import MainController
 from models.definitions import VERSION_NUMBER
 import os
 from dotenv import load_dotenv
+import tabulate
 
 def main(page: ft.Page):
     load_dotenv()
