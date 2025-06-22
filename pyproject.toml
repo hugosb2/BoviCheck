@@ -13,6 +13,8 @@ dependencies = [
     "pandas>=2.2.3",
     "openpyxl==3.1.5",
     "python-dotenv",
+    "PyPDF2",         # Adicionado para ler arquivos PDF
+    "python-docx",    # Adicionado para ler arquivos .docx
 ]
 
 [tool.flet]
@@ -30,8 +32,8 @@ package_name = "com.hugobarros.bovicheck"
 app_name = "BoviCheck"
 permissions = [
     "android.permission.INTERNET",
-    "android.permission.MANAGE_EXTERNAL_STORAGE"
-
+    "android.permission.MANAGE_EXTERNAL_STORAGE",
+    "android.permission.ACCESS_MEDIA_LOCATION"
 ]
 legacy_storage = true
 
@@ -40,7 +42,9 @@ dev-dependencies = [
     "flet[all]==0.28.3",
     "requests",
     "pandas>=2.2.3",
-    "openpyxl==3.1.5"
+    "openpyxl==3.1.5",
+    "PyPDF2",
+    "python-docx",
 ]
 
 [tool.poetry]
