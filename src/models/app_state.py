@@ -50,7 +50,6 @@ class AppState:
             "suggestions_on_dashboard": False,
         }
         loaded_ai_settings = data.get("ai_settings", default_ai_settings)
-        # Garante que a chave api_key seja sempre carregada do ambiente se não estiver no arquivo
         loaded_ai_settings.setdefault("api_key", os.getenv("GEMINI_API_KEY"))
         self.ai_settings = loaded_ai_settings
 

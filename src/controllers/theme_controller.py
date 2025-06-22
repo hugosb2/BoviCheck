@@ -13,10 +13,20 @@ class ThemeController:
         color_name = prefs.get("primary_color_name", "TEAL_ACCENT_700")
         color_seed = getattr(ft.Colors, color_name, ft.Colors.TEAL_ACCENT_700)
 
+        page_transitions = ft.PageTransitionsTheme(
+            android=ft.PageTransitionTheme.ZOOM,
+            ios=ft.PageTransitionTheme.ZOOM,
+            linux=ft.PageTransitionTheme.ZOOM,
+            macos=ft.PageTransitionTheme.ZOOM,
+            windows=ft.PageTransitionTheme.ZOOM,
+        )
+        # --------------------------------------------------------
+
         light_theme = ft.Theme(
             color_scheme_seed=color_seed,
             use_material3=True,
-            font_family="OpenSans"
+            font_family="OpenSans",
+            page_transitions=page_transitions,
         )
         if light_theme.color_scheme:
             light_theme.color_scheme.background = ft.colors.blend_colors(
@@ -29,6 +39,7 @@ class ThemeController:
             use_material3=True,
             font_family="OpenSans",
             visual_density=ft.VisualDensity.COMPACT,
+            page_transitions=page_transitions,
         )
         if dark_theme.color_scheme:
             dark_theme.color_scheme.primary = color_seed
