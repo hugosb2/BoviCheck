@@ -215,6 +215,45 @@ def _create_file_message_control(file_path: str, role: str, cs) -> ft.Row:
     
     return ft.Row(controls, alignment=ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START)
 
+def _create_confirmation_control(text: str, on_confirm, on_cancel) -> ft.Card:
+    def handle_click(e, original_handler):
+        for control in e.control.parent.controls:
+            control.disabled = True
+        e.control.page.update()
+        original_handler(e)
+
+    confirmation_card = ft.Card(
+        content=ft.Container(
+            content=ft.Column([
+                ft.Row(
+                    [
+                        ft.Icon(ft.Icons.HELP_OUTLINE_ROUNDED, color=ft.Colors.AMBER, size=28),
+                        ft.Column(
+                            [
+                                ft.Text(text, weight=ft.FontWeight.BOLD, no_wrap=False),
+                                ft.Text("Aguardando sua aprovação para continuar.", opacity=0.8, size=12),
+                            ],
+                            spacing=4,
+                            expand=True,
+                        ),
+                    ],
+                    spacing=15,
+                    vertical_alignment=ft.CrossAxisAlignment.START,
+                ),
+                ft.Row(
+                    [
+                        ft.TextButton("Cancelar", on_click=lambda e: handle_click(e, on_cancel), style=ft.ButtonStyle(color=ft.Colors.ERROR)),
+                        ft.FilledButton("Confirmar", on_click=lambda e: handle_click(e, on_confirm)),
+                    ],
+                    alignment=ft.MainAxisAlignment.END,
+                )
+            ]),
+            padding=ft.padding.all(15)
+        )
+    )
+    
+    return confirmation_card
+
 def build_ai_settings_view(controller) -> ft.Container:
     state = controller.app_state
     

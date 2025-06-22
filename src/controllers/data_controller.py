@@ -1,6 +1,8 @@
 import flet as ft
 from datetime import datetime
 from models import persistence, export_manager
+import pandas as pd
+import uuid
 
 class DataController:
     def __init__(self, main_controller):
@@ -8,9 +10,43 @@ class DataController:
         self.page = main_controller.page
         self.app_state = main_controller.app_state
         self.file_manager = main_controller.file_manager_controller
-
         self.main.backup_checkboxes = {}
         self.main.spreadsheet_checkboxes = {}
+
+    def import_data_from_dataframe(self, df: pd.DataFrame) -> tuple[int, str]:
+        required_columns = ["Nome do Índice", "Índice (Valor e Unidade)", "Data", "Hora"]
+        if not all(col in df.columns for col in required_columns):
+            msg = f"A planilha não contém as colunas necessárias: {', '.join(required_columns)}."
+            return 0, msg
+
+        items_added = 0
+        df = df.dropna(subset=required_columns)
+
+        for _, row in df.iterrows():
+            try:
+                index_name = row["Nome do Índice"]
+                
+                new_calc = {
+                    "id": f"imported_{uuid.uuid4()}",
+                    "Resultado": row["Índice (Valor e Unidade)"],
+                    "Data": row["Data"],
+                    "Hora": row["Hora"],
+                    "inputs": [],
+                }
+                
+                if index_name not in self.app_state.calculated_indices:
+                    self.app_state.calculated_indices[index_name] = []
+                
+                self.app_state.calculated_indices[index_name].append(new_calc)
+                items_added += 1
+            except Exception:
+                continue
+        
+        if items_added > 0:
+            persistence.save_state(self.app_state)
+            return items_added, f"{items_added} registro(s) importado(s) com sucesso da planilha."
+        else:
+            return 0, "Nenhum registro válido encontrado para importar na planilha."
 
     def handle_delete_all_data_confirmed(self, e):
         self.app_state.reset()

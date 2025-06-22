@@ -17,6 +17,7 @@ class AppState:
         }
         self.chat_history = []
         self.current_chat_id = None
+        self.active_file_in_chat = None
 
     def to_dict(self) -> dict:
         theme_prefs = self.theme_preference.copy()
@@ -53,12 +54,12 @@ class AppState:
         loaded_ai_settings.setdefault("api_key", os.getenv("GEMINI_API_KEY"))
         self.ai_settings = loaded_ai_settings
 
-
         self.chat_history = data.get("chat_history", [])
 
     def reset(self):
         self.calculated_indices.clear()
         self.chat_history.clear()
+        self.active_file_in_chat = None
 
     def get_calculation_by_id(self, index_name: str, calc_id: str):
         if index_name in self.calculated_indices:

@@ -10,12 +10,15 @@ def get_document_analysis_prompt(filename: str, file_content: str, caption: str)
         return f"O usuário anexou o arquivo '{filename}', mas não foi possível extrair seu conteúdo. Informe ao usuário que o formato pode não ser suportado ou o arquivo pode estar corrompido, e pergunte se ele pode fornecer o conteúdo de outra forma."
     
     if not caption:
-        user_instruction = "Analise o seguinte conteúdo extraído deste arquivo e forneça um resumo, insights ou pontos chave relevantes."
+        user_instruction = "Sua tarefa principal é analisar o conteúdo do arquivo abaixo e fornecer um resumo conciso, insights ou pontos chave relevantes para o usuário."
     else:
-        user_instruction = f"Com base na seguinte pergunta/legenda do usuário: '{caption}', analise o conteúdo do arquivo abaixo e forneça uma resposta."
+        user_instruction = f"Sua tarefa principal é analisar o conteúdo do arquivo abaixo para responder à seguinte pergunta ou instrução do usuário: '{caption}'."
+
+    tool_instruction = "Adicionalmente, você possui uma ferramenta chamada `importar_indices_da_planilha`. Se, e somente se, a instrução do usuário for um pedido explícito para 'importar', 'adicionar', 'carregar' ou 'salvar' os dados desta planilha no aplicativo, você deve utilizar essa ferramenta. Caso contrário, apenas responda à pergunta do usuário com base no conteúdo."
 
     return f"""O usuário anexou o arquivo chamado '{filename}'.
 {user_instruction}
+{tool_instruction}
 
 --- CONTEÚDO DO ARQUIVO ---
 {file_content}
@@ -23,9 +26,7 @@ def get_document_analysis_prompt(filename: str, file_content: str, caption: str)
 """
 
 def get_chat_user_question_prompt(user_text: str) -> str:
-    """Gera o prompt que encapsula a pergunta do usuário para o chat."""
     return f"Com base no contexto de dados fornecido (se houver), responda à seguinte pergunta do usuário: {user_text}"
 
 def get_index_suggestion_prompt(index_name: str) -> str:
-    """Gera o prompt para a sugestão específica de um índice."""
     return f"""Aja como um consultor agropecuário paciente, explicando para um produtor leigo. Com base nos dados do índice '{index_name}' a seguir, forneça uma dica prática e fácil de implementar para melhorar este resultado. Explique em termos simples por que essa dica é importante."""
