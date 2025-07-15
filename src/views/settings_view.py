@@ -29,6 +29,13 @@ def build_general_settings_view(controller) -> ft.ListView:
                 on_click=lambda _: controller.page.go("/settings/export_spreadsheet"),
                 trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS_ROUNDED)
             ),
+            ft.ListTile(
+                leading=ft.Icon(ft.Icons.PICTURE_AS_PDF_OUTLINED, color="primary"),
+                title=ft.Text("Exportar Relatório PDF"),
+                subtitle=ft.Text("Gerar um relatório .pdf com os resultados."),
+                on_click=lambda _: controller.page.go("/settings/export_pdf"),
+                trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS_ROUNDED)
+            ),
 
             ft.Divider(height=10),
             ft.ListTile(leading=ft.Icon(ft.Icons.DELETE_SWEEP_OUTLINED, color=ft.Colors.ERROR), title=ft.Text("Apagar todos os dados", color=ft.Colors.ERROR), on_click=lambda _: controller.page.go("/settings/delete_all_data"), trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS_ROUNDED, color=ft.Colors.ERROR)),

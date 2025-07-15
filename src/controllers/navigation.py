@@ -100,6 +100,8 @@ class Navigation:
             return export_view.build_restore_indices_view(self.controller)
         if route.match("/settings/export_spreadsheet"):
             return export_view.build_export_spreadsheet_view(self.controller)
+        if route.match("/settings/export_pdf"):
+            return export_view.build_export_pdf_view(self.controller)
         if route.match("/file_manager/save_data"):
             return file_manager_view.build_file_manager_view(self.controller)
         if route.match("/about"):
@@ -132,6 +134,7 @@ class Navigation:
         if route.match("/settings/backup_indices"): return "Backup de Dados"
         if route.match("/settings/restore_indices"): return "Restaurar Dados"
         if route.match("/settings/export_spreadsheet"): return "Exportar Planilha"
+        if route.match("/settings/export_pdf"): return "Exportar Relatório PDF"
         if route.match("/settings/theme_mode"): return "Modo de Tema"
         if route.match("/settings/theme_color"): return "Cor do Tema"
         if route.match("/ai/settings"): return "Configurações de IA"

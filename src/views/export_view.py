@@ -22,6 +22,17 @@ def build_export_spreadsheet_view(controller) -> ft.Container:
         checkbox_dict_ref=controller.spreadsheet_checkboxes
     )
 
+def build_export_pdf_view(controller) -> ft.Container:
+    return _build_export_selection_view(
+        controller=controller,
+        title="Exportar Relatório (PDF)",
+        description="Selecione os índices para incluir no relatório PDF.",
+        button_text="Gerar e Salvar PDF",
+        button_icon=ft.Icons.PICTURE_AS_PDF_OUTLINED,
+        on_button_click=controller.handle_export_pdf_click,
+        checkbox_dict_ref=controller.pdf_checkboxes
+    )
+
 def build_restore_indices_view(controller) -> ft.Container:
     return ft.Container(
         content=ft.Column(

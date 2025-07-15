@@ -12,6 +12,7 @@ class DataController:
         self.file_manager = main_controller.file_manager_controller
         self.main.backup_checkboxes = {}
         self.main.spreadsheet_checkboxes = {}
+        self.main.pdf_checkboxes = {}
 
     def import_data_from_dataframe(self, df: pd.DataFrame) -> tuple[int, str]:
         required_columns = ["Nome do Índice", "Índice (Valor e Unidade)", "Data", "Hora"]
@@ -78,6 +79,20 @@ class DataController:
             self.page.go("/file_manager/save_data")
         else:
             self.page.open(ft.SnackBar(ft.Text("Erro ao gerar planilha. 'openpyxl' está instalado?"), bgcolor=ft.Colors.ERROR))
+
+    def handle_export_pdf_click(self, e):
+        selected_names = [name for name, cb in self.main.pdf_checkboxes.items() if cb.value]
+        if not selected_names:
+            self.page.open(ft.SnackBar(ft.Text("Nenhum índice selecionado."), bgcolor=ft.Colors.AMBER))
+            return
+
+        pdf_bytes = export_manager.generate_pdf_bytes(self.app_state.calculated_indices, selected_names)
+        if pdf_bytes:
+            self.file_manager.data_to_save = pdf_bytes
+            self.file_manager.fm_initial_filename = f"bovicheck_relatorio_{datetime.now().strftime('%Y%m%d')}.pdf"
+            self.page.go("/file_manager/save_data")
+        else:
+            self.page.open(ft.SnackBar(ft.Text("Erro ao gerar PDF. 'fpdf2' está instalado?"), bgcolor=ft.Colors.ERROR))
 
     def handle_select_restore_file_click(self, e):
         self.main.view.restore_file_picker.pick_files(

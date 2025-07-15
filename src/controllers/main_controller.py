@@ -1,5 +1,3 @@
-# controllers/main_controller.py
-
 import flet as ft
 import os
 
@@ -93,6 +91,9 @@ class MainController:
 
     def handle_export_spreadsheet_click(self, e):
         self.data_controller.handle_export_spreadsheet_click(e)
+
+    def handle_export_pdf_click(self, e):
+        self.data_controller.handle_export_pdf_click(e)
 
     def handle_select_restore_file_click(self, e):
         self.data_controller.handle_select_restore_file_click(e)
