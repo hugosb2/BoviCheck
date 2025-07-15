@@ -25,11 +25,12 @@ O BoviCheck oferece um conjunto robusto de ferramentas para a gestão zootécnic
     * Gráficos de barra para acompanhamento visual do progresso.
     * Edite ou exclua medições individuais.
 * **Assistente com IA (Google Gemini):**
-    * **Chat Inteligente:** Converse com a IA para tirar dúvidas e pedir análises sobre os dados inseridos.
+    * **Chat Multimodal Inteligente:** Converse com a IA para tirar dúvidas e pedir análises. Anexe imagens, planilhas (.xlsx), PDFs e documentos (.docx, .txt) para obter análises contextuais sobre o conteúdo dos seus arquivos.
     * **Sugestões Contextuais:** Receba dicas e análises geradas pela IA diretamente no Dashboard e nas telas de histórico dos índices.
 * **Gerenciamento de Dados:**
     * **Backup e Restauração:** Crie backups de segurança de todos os seus dados em um único arquivo `.json` e restaure-os a qualquer momento.
-    * **Exportação para Planilha:** Exporte os dados selecionados para um arquivo Excel (`.xlsx`) para análises externas.
+    * **Exportação para Planilha:** Exporte os dados selecionados para um arquivo Excel (`.xlsx`). Este arquivo pode ser usado como um modelo para a importação de dados.
+    * **Importação via Planilha com IA:** Anexe uma planilha Excel (.xlsx) no chat e peça à IA para importar os dados diretamente para o aplicativo, agilizando o cadastro de múltiplos registros.
     * **Exclusão Segura:** Opções para apagar o histórico de um índice específico ou todos os dados do aplicativo.
 * **Personalização Completa:**
     * **Modo de Tema:** Escolha entre os modos Claro, Escuro ou o padrão do sistema.
@@ -39,11 +40,15 @@ O BoviCheck oferece um conjunto robusto de ferramentas para a gestão zootécnic
 
 Este projeto foi construído utilizando as seguintes tecnologias:
 
-* **Python 3.9+**
 * **Flet:** Framework principal para a construção da interface gráfica.
-* **Requests:** Para realizar as chamadas à API do Google Gemini.
-* **OpenPyXL:** Para a funcionalidade de exportação para planilhas Excel.
+* **Pandas:** Para leitura e manipulação de dados de planilhas Excel.
+* **OpenPyXL:** Motor utilizado pelo Pandas para a funcionalidade de exportação e leitura de `.xlsx`.
+* **PyPDF2:** Para a extração de texto de arquivos PDF.
+* **python-docx:** Para a extração de texto de arquivos `.docx`.
 * **python-dotenv:** Para o gerenciamento seguro de chaves de API.
+* **Python 3.9+**
+* **Requests:** Para realizar as chamadas à API do Google Gemini.
+* **Tabulate:** Dependência do Pandas para a formatação de tabelas em texto.
 
 ## 🚀 Instalação e Execução
 
