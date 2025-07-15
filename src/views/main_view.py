@@ -34,6 +34,10 @@ class MainView:
                     label="Dashboard"
                 ),
                 ft.NavigationDrawerDestination(
+                    icon=ft.Icon(ft.Icons.PETS_OUTLINED, color="primary"),
+                    label="Rebanho"
+                ),
+                ft.NavigationDrawerDestination(
                     icon=ft.Icon(ft.Icons.TRENDING_UP_OUTLINED, color="primary"),
                     label="Índices"
                 ),
@@ -68,6 +72,17 @@ class MainView:
         self.page.update()
 
     def create_app_bar(self, title: str, show_back_button: bool = False) -> ft.AppBar:
+        actions = []
+        if self.page.route == "/herd":
+            actions.append(
+                ft.IconButton(
+                    icon=ft.Icons.ADD_ROUNDED,
+                    tooltip="Adicionar Animal",
+                    on_click=lambda _: self.page.go("/animal/add"),
+                    icon_color="onPrimary"
+                )
+            )
+
         leading_icon = ft.IconButton(
             ft.Icons.ARROW_BACK_IOS_NEW_ROUNDED, on_click=self.controller.go_back,
             tooltip="Voltar",
@@ -89,5 +104,5 @@ class MainView:
             bgcolor="primary",
             center_title=False,
             elevation=2,
-            actions=[]
+            actions=actions
         )

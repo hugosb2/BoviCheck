@@ -18,6 +18,7 @@ class AppState:
         self.chat_history = []
         self.current_chat_id = None
         self.active_file_in_chat = None
+        self.herd = []
 
     def to_dict(self) -> dict:
         theme_prefs = self.theme_preference.copy()
@@ -28,7 +29,8 @@ class AppState:
             "calculated_indices": self.calculated_indices,
             "theme_preference": theme_prefs,
             "ai_settings": self.ai_settings,
-            "chat_history": self.chat_history
+            "chat_history": self.chat_history,
+            "herd": self.herd,
         }
 
     def from_dict(self, data: dict):
@@ -55,11 +57,13 @@ class AppState:
         self.ai_settings = loaded_ai_settings
 
         self.chat_history = data.get("chat_history", [])
+        self.herd = data.get("herd", [])
 
     def reset(self):
         self.calculated_indices.clear()
         self.chat_history.clear()
         self.active_file_in_chat = None
+        self.herd.clear()
 
     def get_calculation_by_id(self, index_name: str, calc_id: str):
         if index_name in self.calculated_indices:
@@ -103,5 +107,28 @@ class AppState:
         chat = self.get_chat_by_id(chat_id)
         if chat:
             chat['title'] = new_title
+            return True
+        return False
+
+    def add_animal(self, animal_data: dict):
+        self.herd.append(animal_data)
+
+    def get_animal_by_id(self, animal_id: str) -> tuple[dict | None, int | None]:
+        for i, animal in enumerate(self.herd):
+            if animal.get("id") == animal_id:
+                return animal, i
+        return None, None
+
+    def update_animal_by_id(self, animal_id: str, new_data: dict):
+        animal, index = self.get_animal_by_id(animal_id)
+        if animal is not None:
+            self.herd[index] = new_data
+            return True
+        return False
+
+    def delete_animal_by_id(self, animal_id: str) -> bool:
+        animal, index = self.get_animal_by_id(animal_id)
+        if animal is not None:
+            self.herd.pop(index)
             return True
         return False

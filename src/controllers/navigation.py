@@ -17,7 +17,7 @@ class Navigation:
                 self.page.go("/ai/history")
             return
 
-        is_top_level = route.route in ["/dashboard", "/indices", "/ai/history", "/settings/general", "/about"]
+        is_top_level = route.route in ["/dashboard", "/herd", "/indices", "/ai/history", "/settings/general", "/about"]
 
         current_chat = self.controller.app_state.get_current_chat()
         chat_title = current_chat['title'] if current_chat else "Chat com IA"
@@ -27,15 +27,36 @@ class Navigation:
             self.page.views.clear()
 
         appbar = self.controller.view.create_app_bar(title=app_bar_title, show_back_button=not is_top_level)
+        
+        view_content = None
+        nav_bar = None
 
-        content = self.build_view_for_route(route)
+        if route.match("/animal/view/:animal_id"):
+            animal_controller = self.controller.animal_controller
+            animal_controller.current_animal_id = route.animal_id
+            animal_controller.update_detail_content("ficha") 
+            view_content = animal_controller.detail_content_area
+            nav_bar = ft.NavigationBar(
+                selected_index=0,
+                on_change=animal_controller.handle_nav_bar_change,
+                destinations=[
+                    ft.NavigationBarDestination(icon=ft.Icons.DESCRIPTION_OUTLINED, selected_icon=ft.Icons.DESCRIPTION, label="Ficha"),
+                    ft.NavigationBarDestination(icon=ft.Icons.SCALE_OUTLINED, selected_icon=ft.Icons.SCALE, label="Pesagens"),
+                    ft.NavigationBarDestination(icon=ft.Icons.VACCINES_OUTLINED, selected_icon=ft.Icons.VACCINES, label="Vacinas"),
+                    ft.NavigationBarDestination(icon=ft.Icons.MEDICAL_SERVICES_OUTLINED, selected_icon=ft.Icons.MEDICAL_SERVICES, label="Ocorrências"),
+                ]
+            )
+        else:
+            view_content = self.build_view_for_route(route)
+
 
         self.page.views.append(
             ft.View(
                 route=route.route,
-                controls=[content],
+                controls=[view_content],
                 appbar=appbar,
-                drawer=self.page.drawer if is_top_level else None,
+                navigation_bar=nav_bar,
+                drawer=self.page.drawer if is_top_level and not nav_bar else None,
                 padding=0
             )
         )
@@ -54,11 +75,24 @@ class Navigation:
         from views import (
             dashboard_view, indices_list_view, index_view, history_view,
             about_view, ai_view, settings_view, dialogs_view, export_view,
-            file_manager_view, ai_history_view
+            file_manager_view, ai_history_view, herd_list_view, animal_detail_view,
+            history_entry_view, animal_dialogs_view
         )
 
         if route.match("/dashboard"):
             return dashboard_view.build_dashboard_view(self.controller)
+        
+        if route.match("/herd"):
+            return herd_list_view.build_herd_list_view(self.controller)
+        if route.match("/animal/add"):
+            return animal_detail_view._build_ficha_content(self.controller, None)
+        if route.match("/animal/:animal_id/add/:history_key"):
+            return history_entry_view.build_history_entry_view(self.controller, route.animal_id, route.history_key)
+        if route.match("/animal/:animal_id/edit/:history_key/:record_id"):
+            return history_entry_view.build_history_entry_view(self.controller, route.animal_id, route.history_key, route.record_id)
+        if route.match("/animal/:animal_id/delete_history/:history_key/:record_id"):
+            return animal_dialogs_view.build_confirm_delete_history_view(self.controller, route.animal_id, route.history_key, route.record_id)
+
         if route.match("/indices"):
             return indices_list_view.build_indices_list_view(self.controller)
         if route.match("/index/:name/calculate"):
@@ -100,22 +134,16 @@ class Navigation:
             return export_view.build_restore_indices_view(self.controller)
         if route.match("/settings/export_spreadsheet"):
             return export_view.build_export_spreadsheet_view(self.controller)
-        if route.match("/settings/export_pdf"):
-            return export_view.build_export_pdf_view(self.controller)
         if route.match("/file_manager/save_data"):
             return file_manager_view.build_file_manager_view(self.controller)
         if route.match("/about"):
             return about_view.build_about_view(self.controller)
-
         return ft.Text("Página não encontrada")
 
     def get_app_bar_title(self, route: ft.TemplateRoute, chat_title: str) -> str:
         index_routes = [
-            "/index/:name/history",
-            "/index/:name/calculate",
-            "/index/:name/edit/:calc_id",
-            "/index/:name/delete_all_confirm",
-            "/index/:name/delete_single/:calc_id/confirm"
+            "/index/:name/history", "/index/:name/calculate", "/index/:name/edit/:calc_id",
+            "/index/:name/delete_all_confirm", "/index/:name/delete_single/:calc_id/confirm"
         ]
         
         for index_route in index_routes:
@@ -123,6 +151,14 @@ class Navigation:
                 return helpers.from_safe_route_param(route.name)
 
         if route.match("/dashboard"): return "Dashboard Principal"
+        if route.match("/herd"): return "Gestão do Rebanho"
+        if route.match("/animal/add"): return "Adicionar Animal"
+        if route.match("/animal/view/:animal_id"): return "Ficha do Animal"
+        if route.match("/animal/:animal_id/add/historico_pesagens"): return "Registrar Pesagem"
+        if route.match("/animal/:animal_id/add/historico_vacinacao"): return "Registrar Vacina"
+        if route.match("/animal/:animal_id/add/historico_doencas"): return "Registrar Ocorrência"
+        if route.match("/animal/:animal_id/edit/:history_key/:record_id"): return "Editar Registro"
+        if route.match("/animal/:animal_id/delete_history/:history_key/:record_id"): return "Confirmar Exclusão"
         if route.match("/indices"): return "Índices Zootécnicos"
         if route.match("/about"): return "Sobre o BoviCheck"
         
@@ -134,7 +170,6 @@ class Navigation:
         if route.match("/settings/backup_indices"): return "Backup de Dados"
         if route.match("/settings/restore_indices"): return "Restaurar Dados"
         if route.match("/settings/export_spreadsheet"): return "Exportar Planilha"
-        if route.match("/settings/export_pdf"): return "Exportar Relatório PDF"
         if route.match("/settings/theme_mode"): return "Modo de Tema"
         if route.match("/settings/theme_color"): return "Cor do Tema"
         if route.match("/ai/settings"): return "Configurações de IA"
@@ -145,10 +180,11 @@ class Navigation:
     def sync_nav_drawer_to_route(self, route_str: str):
         idx = -1
         if route_str == "/dashboard": idx = 0
-        elif route_str.startswith("/indices") or route_str.startswith("/index/"): idx = 1
-        elif route_str.startswith("/ai/"): idx = 2
-        elif route_str.startswith("/settings/"): idx = 3
-        elif route_str == "/about": idx = 4
+        elif route_str.startswith("/herd") or route_str.startswith("/animal/"): idx = 1
+        elif route_str.startswith("/indices") or route_str.startswith("/index/"): idx = 2
+        elif route_str.startswith("/ai/"): idx = 3
+        elif route_str.startswith("/settings/"): idx = 4
+        elif route_str == "/about": idx = 5
 
         if self.page.drawer and self.page.drawer.selected_index != idx:
             self.page.drawer.selected_index = idx

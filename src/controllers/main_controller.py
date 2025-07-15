@@ -9,6 +9,7 @@ from .index_controller import IndexController
 from .data_controller import DataController
 from .ai_controller import AIController
 from .file_manager_controller import FileManagerController
+from .animal_controller import AnimalController
 
 class MainController:
     def __init__(self, page: ft.Page):
@@ -25,6 +26,7 @@ class MainController:
         self.ai_controller = AIController(self)
         self.file_manager_controller = FileManagerController(self)
         self.data_controller = DataController(self)
+        self.animal_controller = AnimalController(self)
 
         self.theme_controller.apply_initial_theme()
 
@@ -36,11 +38,11 @@ class MainController:
 
     def handle_nav_drawer_change(self, e):
         self.page.drawer.open = False
-        routes = ["/dashboard", "/indices", "/ai/history", "/settings/general", "/about"]
+        routes = ["/dashboard", "/herd", "/indices", "/ai/history", "/settings/general", "/about"]
         idx = int(e.data)
         if idx < len(routes):
             self.page.go(routes[idx])
-        elif idx == 5:
+        elif idx == len(routes):
             os._exit(0)
         self.page.update()
 
@@ -91,9 +93,6 @@ class MainController:
 
     def handle_export_spreadsheet_click(self, e):
         self.data_controller.handle_export_spreadsheet_click(e)
-
-    def handle_export_pdf_click(self, e):
-        self.data_controller.handle_export_pdf_click(e)
 
     def handle_select_restore_file_click(self, e):
         self.data_controller.handle_select_restore_file_click(e)
