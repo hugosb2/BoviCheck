@@ -102,10 +102,6 @@ O código está organizado seguindo a arquitetura **MVC (Model-View-Controller)*
 * `src/utils/`: Funções auxiliares e utilitários.
 * `assets/`: Ícones e outras mídias.
 
-## 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
 ## 👨‍💻 Contato
 
 Hugo Barros – [hugobs4987@gmail.com](mailto:hugobs4987@gmail.com)
