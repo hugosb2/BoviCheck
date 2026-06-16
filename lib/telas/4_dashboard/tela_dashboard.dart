@@ -10,6 +10,7 @@ import '../10_formularios/form_pesagem.dart';
 import '../10_formularios/form_sanitario.dart';
 import '../10_formularios/form_reprodutivo.dart';
 import '../10_formularios/form_leite.dart';
+import '../10_formularios/form_abate.dart';
 import '../8_rebanho/form_animal.dart';
 import '../8_rebanho/tela_lista_animais.dart';
 import '../9_piquetes/form_piquete.dart';
@@ -509,6 +510,13 @@ class _TelaDashboardState extends State<TelaDashboard> {
             Expanded(child: _botaoAcao(context, "Reprodução", IconesApp.reproducao, Colors.pink, const FormReprodutivo())),
             const SizedBox(width: 12),
             Expanded(child: _botaoAcao(context, "Leite", IconesApp.leite, Colors.blue, const FormLeite())),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _botaoAcao(context, "Abate", Icons.restaurant, Colors.brown, const FormAbate())),
+            const Expanded(child: SizedBox.shrink()),
           ],
         ),
       ],

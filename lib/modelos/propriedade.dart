@@ -1,7 +1,6 @@
 import 'package:uuid/uuid.dart';
 import 'piquete.dart';
 import 'animal.dart';
-import 'log_sistema.dart';
 
 class Propriedade {
   final String id;
@@ -36,15 +35,6 @@ class Propriedade {
 
   List<Piquete> adicionarPiquete(List<Piquete> piquetes, Piquete piquete) {
     return [...piquetes, piquete];
-  }
-
-  /// Registra um log de ação do sistema e o retorna.
-  LogSistema registrarLog(String acao) {
-    return LogSistema(
-      acao: acao,
-      modulo: 'Propriedade',
-      detalhes: 'Propriedade: $nomeFazenda (ID: $id)',
-    );
   }
 
   /// Gera um sumário textual do relatório geral .

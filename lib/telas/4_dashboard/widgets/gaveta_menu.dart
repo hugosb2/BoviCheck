@@ -70,7 +70,7 @@ class GavetaMenu extends StatelessWidget {
                 _LabelSecao(titulo: "Análise"),
                 _ItemMenuModerno(
                   icon: IconesApp.indicadores,
-                  titulo: 'Indicadores GMD',
+                    titulo: 'Indicadores',
                   cor: Colors.teal.shade700,
                   onTap: () => _navegar(context, const TelaIndicadores()),
                   delay: 250,

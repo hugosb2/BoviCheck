@@ -13,6 +13,7 @@ import '../10_formularios/form_pesagem.dart';
 import '../10_formularios/form_reprodutivo.dart';
 import '../10_formularios/form_leite.dart';
 import '../10_formularios/form_sanitario.dart';
+import '../10_formularios/form_abate.dart';
 import 'form_animal.dart';
 
 class TelaDetalhesAnimal extends StatefulWidget {
@@ -464,6 +465,16 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
               await Navigator.push(context, MaterialPageRoute(builder: (_) => const FormSanitario()));
               _carregarHistorico();
             })),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _acaoItem(context, theme, Icons.restaurant, 'Abate', Colors.brown, () async {
+              await Navigator.push(context, MaterialPageRoute(builder: (_) => FormAbate(animalPreSelecionado: animal)));
+              _carregarHistorico();
+            })),
+            const Expanded(child: SizedBox.shrink()),
           ],
         ),
       ],
