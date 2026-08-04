@@ -90,7 +90,7 @@ class ProvedorFazenda extends ChangeNotifier {
         final ultima = lista.last;
         final dias = ultima.data.difference(primeira.data).inDays;
         final ganho = ultima.pesoKg - primeira.pesoKg;
-        if (dias > 0) {
+        if (dias >= 7) {
           gmds.add(ganho / dias);
         }
       }
@@ -118,7 +118,7 @@ class ProvedorFazenda extends ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint("Erro ao carregar propriedades: $e");
+      debugPrint('Erro ao carregar propriedades: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -133,7 +133,8 @@ class ProvedorFazenda extends ChangeNotifier {
     if (fazendaOrId is Propriedade) {
       _propriedadeAtiva = fazendaOrId;
     } else if (fazendaOrId is String) {
-      if (_propriedades.isEmpty) await carregarPropriedades();
+      // Sempre recarrega o cache: após uma edição a lista pode estar obsoleta.
+      await carregarPropriedades();
       try {
         _propriedadeAtiva = _propriedades.firstWhere(
           (p) => p.id == fazendaOrId,
@@ -178,6 +179,13 @@ class ProvedorFazenda extends ChangeNotifier {
 
   Future<void> adicionarPiquete(Piquete piquete) async {
     await BancoDadosServico.instancia.adicionarPiquete(piquete);
+    if (_propriedadeAtiva != null) {
+      await carregarPiquetes(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> atualizarPiquete(Piquete piquete) async {
+    await BancoDadosServico.instancia.updatePiquete(piquete);
     if (_propriedadeAtiva != null) {
       await carregarPiquetes(_propriedadeAtiva!.id);
     }

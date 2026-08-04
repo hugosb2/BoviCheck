@@ -30,7 +30,7 @@ class _TelaHistoricoPesagemState extends State<TelaHistoricoPesagem> {
     if (pesagens.isEmpty) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Histórico de Pesagens'),
+        appBar: const AppBarPadrao(titulo: 'Histórico de Pesagens'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -56,7 +56,7 @@ class _TelaHistoricoPesagemState extends State<TelaHistoricoPesagem> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Histórico de Pesagens'),
+      appBar: const AppBarPadrao(titulo: 'Histórico de Pesagens'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
@@ -117,7 +117,7 @@ class _TelaHistoricoPesagemState extends State<TelaHistoricoPesagem> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Peso Médio Atual', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('Peso Médio Atual', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$totalAnimais animais ativos', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),

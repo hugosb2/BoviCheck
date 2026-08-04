@@ -24,7 +24,7 @@ class _TelaConfigAparenciaState extends State<TelaConfigAparencia> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          _SecaoTitulo(texto: 'Modo de Exibição'),
+          const _SecaoTitulo(texto: 'Modo de Exibição'),
           Card(
             elevation: 0,
             color: theme.colorScheme.surfaceContainerLow,
@@ -39,22 +39,22 @@ class _TelaConfigAparenciaState extends State<TelaConfigAparencia> {
                 RadioGroup<ThemeMode>(
                   groupValue: provedorTema.modoTema,
                   onChanged: (v) => provedorTema.alterarModoTema(v!),
-                  child: Column(
+                  child: const Column(
                     children: [
                       RadioListTile<ThemeMode>(
-                        title: const Text('Automático (Sistema)'),
+                        title: Text('Automático (Sistema)'),
                         subtitle:
-                            const Text('Segue as configurações do seu celular'),
+                            Text('Segue as configurações do seu celular'),
                         value: ThemeMode.system,
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       RadioListTile<ThemeMode>(
-                        title: const Text('Modo Claro'),
+                        title: Text('Modo Claro'),
                         value: ThemeMode.light,
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       RadioListTile<ThemeMode>(
-                        title: const Text('Modo Escuro'),
+                        title: Text('Modo Escuro'),
                         value: ThemeMode.dark,
                       ),
                     ],
@@ -64,7 +64,7 @@ class _TelaConfigAparenciaState extends State<TelaConfigAparencia> {
             ),
           ).animate().fadeIn().slideY(),
           const SizedBox(height: 32),
-          _SecaoTitulo(texto: 'Paleta de Cores'),
+          const _SecaoTitulo(texto: 'Paleta de Cores'),
           Card(
             elevation: 0,
             color: theme.colorScheme.surfaceContainerLow,

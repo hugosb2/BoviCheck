@@ -121,7 +121,12 @@ class _FormLeiteState extends State<FormLeite> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provedor = context.watch<ProvedorFazenda>();
-    final femeas = provedor.animais.where((a) => a.sexo == 'F').toList();
+    final femeas = provedor.animais
+        .where((a) => a.sexo == 'F' && a.isAtivo)
+        .where((a) {
+      final cat = a.categoria.toLowerCase();
+      return cat != 'bezerra' && cat != 'novilha';
+    }).toList();
 
     final vazio = _litrosController.text.isEmpty && _obsController.text.isEmpty && widget.animalPreSelecionado == null && _animalIdSelecionado == null;
 

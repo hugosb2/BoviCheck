@@ -34,7 +34,7 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
     if (provedor.propriedadeAtiva == null) {
       setState(() {
         _analiseResultado =
-            "Nenhuma fazenda selecionada. Volte para a tela inicial e selecione uma fazenda.";
+            'Nenhuma fazenda selecionada. Volte para a tela inicial e selecione uma fazenda.';
       });
       return;
     }
@@ -67,7 +67,7 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _erro = "Não foi possível conectar ao consultor virtual.\nErro: $e";
+          _erro = 'Não foi possível conectar ao consultor virtual.\nErro: $e';
         });
       }
     } finally {
@@ -105,7 +105,7 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
                     color: CoresApp.containerAtencao,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     IconesApp.iaConsultor,
                     color: CoresApp.atencao,
                     size: 32,

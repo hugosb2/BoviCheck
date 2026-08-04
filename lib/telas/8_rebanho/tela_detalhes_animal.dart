@@ -181,7 +181,7 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
                     children: [
                       Text(
                         animal.nome ?? 'Animal #${animal.brinco}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
@@ -453,7 +453,10 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
         const SizedBox(height: 12),
         Row(
           children: [
-            if (animal.sexo == 'F')
+            if (animal.sexo == 'F' &&
+                animal.isAtivo &&
+                animal.categoria != 'Bezerra' &&
+                animal.categoria != 'Novilha')
               Expanded(child: _acaoItem(context, theme, Icons.water_drop, 'Leite', Colors.cyan, () async {
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => FormLeite(animalPreSelecionado: animal)));
                 _carregarHistorico();
@@ -462,7 +465,7 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
               const Expanded(child: SizedBox.shrink()),
             const SizedBox(width: 12),
             Expanded(child: _acaoItem(context, theme, Icons.medical_services, 'Sanitário', Colors.red, () async {
-              await Navigator.push(context, MaterialPageRoute(builder: (_) => const FormSanitario()));
+              await Navigator.push(context, MaterialPageRoute(builder: (_) => FormSanitario(animalPreSelecionado: animal)));
               _carregarHistorico();
             })),
           ],
@@ -470,10 +473,13 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _acaoItem(context, theme, Icons.restaurant, 'Abate', Colors.brown, () async {
-              await Navigator.push(context, MaterialPageRoute(builder: (_) => FormAbate(animalPreSelecionado: animal)));
-              _carregarHistorico();
-            })),
+            if (animal.isAtivo && animal.status == 'Ativo')
+              Expanded(child: _acaoItem(context, theme, Icons.restaurant, 'Abate', Colors.brown, () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => FormAbate(animalPreSelecionado: animal)));
+                _carregarHistorico();
+              }))
+            else
+              const Expanded(child: SizedBox.shrink()),
             const Expanded(child: SizedBox.shrink()),
           ],
         ),
@@ -511,11 +517,11 @@ class _TelaDetalhesAnimalState extends State<TelaDetalhesAnimal> {
 
   Widget _blocoRegistros(BuildContext context, ThemeData theme) {
     final categorias = [
-      _CatReg('Pesagens', IconesApp.peso, 'Pesagem', Colors.indigo),
-      _CatReg('Reprodutivo', Icons.favorite, 'Reprodutivo', Colors.pink),
-      _CatReg('Produção de Leite', Icons.water_drop, 'Leite', Colors.cyan),
-      _CatReg('Sanitário', Icons.medical_services, 'Sanitário', Colors.red),
-      _CatReg('Abates', Icons.restaurant, 'Abate', Colors.brown),
+      const _CatReg('Pesagens', IconesApp.peso, 'Pesagem', Colors.indigo),
+      const _CatReg('Reprodutivo', Icons.favorite, 'Reprodutivo', Colors.pink),
+      const _CatReg('Produção de Leite', Icons.water_drop, 'Leite', Colors.cyan),
+      const _CatReg('Sanitário', Icons.medical_services, 'Sanitário', Colors.red),
+      const _CatReg('Abates', Icons.restaurant, 'Abate', Colors.brown),
     ];
 
     return Padding(

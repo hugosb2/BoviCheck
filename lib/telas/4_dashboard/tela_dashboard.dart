@@ -62,13 +62,13 @@ class _TelaDashboardState extends State<TelaDashboard> {
                 Icon(Icons.cottage_outlined, size: 80, color: theme.colorScheme.primary.withValues(alpha: 0.5)),
                 const SizedBox(height: 24),
                 Text(
-                  "Nenhuma fazenda selecionada",
+                  'Nenhuma fazenda selecionada',
                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Abra o menu e selecione ou cadastre uma fazenda.",
+                  'Abra o menu e selecione ou cadastre uma fazenda.',
                   style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
@@ -90,8 +90,8 @@ class _TelaDashboardState extends State<TelaDashboard> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       drawer: const GavetaMenu(),
-      appBar: AppBarPadrao(
-        titulo: "BoviCheck",
+      appBar: const AppBarPadrao(
+        titulo: 'BoviCheck',
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -110,7 +110,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
 
               const SizedBox(height: 28),
 
-              const _SecaoTitulo(titulo: "Resumo do Rebanho"),
+              const _SecaoTitulo(titulo: 'Resumo do Rebanho'),
               const SizedBox(height: 16),
 
               _heroTotalRebanho(theme, provedor),
@@ -125,7 +125,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
 
               const SizedBox(height: 32),
 
-              const _SecaoTitulo(titulo: "Ações Rápidas"),
+              const _SecaoTitulo(titulo: 'Ações Rápidas'),
               const SizedBox(height: 16),
 
               _gridAgesRapidas(context, theme),
@@ -137,7 +137,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
       ),
       floatingActionButton: BotaoFlutuanteBovi(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FormAnimal())),
-        label: "Novo Animal",
+        label: 'Novo Animal',
         icone: Icons.add_rounded,
       ),
     );
@@ -145,9 +145,10 @@ class _TelaDashboardState extends State<TelaDashboard> {
 
   Widget _cabecalhoFazenda(ThemeData theme, ProvedorFazenda provedor) {
     final propriedade = provedor.propriedadeAtiva!;
-    final iniciais = propriedade.nomeFazenda.length >= 2
-        ? propriedade.nomeFazenda.substring(0, 2).toUpperCase()
-        : propriedade.nomeFazenda[0].toUpperCase();
+    final nome = propriedade.nomeFazenda.isEmpty ? 'BoviCheck' : propriedade.nomeFazenda;
+    final iniciais = nome.length >= 2
+        ? nome.substring(0, 2).toUpperCase()
+        : nome[0].toUpperCase();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -217,7 +218,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            "${propriedade.cidade}, ${propriedade.estado}",
+                            '${propriedade.cidade}, ${propriedade.estado}',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -296,7 +297,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total do Rebanho",
+                    'Total do Rebanho',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,
@@ -327,7 +328,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
         Expanded(
           child: _cardStatPequeno(
             theme: theme,
-            titulo: "Piquetes",
+            titulo: 'Piquetes',
             valor: provedor.totalPiquetes.toString(),
             icone: IconesApp.piquete,
             cor: Colors.orange.shade700,
@@ -338,8 +339,8 @@ class _TelaDashboardState extends State<TelaDashboard> {
         Expanded(
           child: _cardStatPequeno(
             theme: theme,
-            titulo: "Leite (mês)",
-            valor: "${provedor.totalLeiteMes.toStringAsFixed(0)} L",
+            titulo: 'Leite (mês)',
+            valor: '${provedor.totalLeiteMes.toStringAsFixed(0)} L',
             icone: IconesApp.leite,
             cor: Colors.cyan.shade700,
           ),
@@ -348,8 +349,8 @@ class _TelaDashboardState extends State<TelaDashboard> {
         Expanded(
           child: _cardStatPequeno(
             theme: theme,
-            titulo: "GMD Médio",
-            valor: "${provedor.mediaGMD.toStringAsFixed(2)} kg",
+            titulo: 'GMD Médio',
+            valor: '${provedor.mediaGMD.toStringAsFixed(2)} kg',
             icone: IconesApp.peso,
             cor: Colors.teal.shade700,
           ),
@@ -358,7 +359,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
         Expanded(
           child: _cardStatPequeno(
             theme: theme,
-            titulo: "Alertas",
+            titulo: 'Alertas',
             valor: provedor.totalAnimaisDoentes.toString(),
             icone: IconesApp.iaAtencao,
             cor: provedor.totalAnimaisDoentes > 0 ? Colors.red.shade700 : Colors.green.shade700,
@@ -464,7 +465,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Consultor IA",
+                    'Consultor IA',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: temAlerta ? Colors.red.shade700 : theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -474,8 +475,8 @@ class _TelaDashboardState extends State<TelaDashboard> {
                   const SizedBox(height: 4),
                   Text(
                     temAlerta
-                        ? "${provedor.totalAnimaisDoentes} animal(is) com alerta de saúde"
-                        : "Rebanho saudável! GMD médio de ${provedor.mediaGMD.toStringAsFixed(2)} kg.",
+                        ? '${provedor.totalAnimaisDoentes} animal(is) com alerta de saúde'
+                        : 'Rebanho saudável! GMD médio de ${provedor.mediaGMD.toStringAsFixed(2)} kg.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: temAlerta ? Colors.red.shade800 : theme.colorScheme.onSurface,
@@ -499,23 +500,23 @@ class _TelaDashboardState extends State<TelaDashboard> {
       children: [
         Row(
           children: [
-            Expanded(child: _botaoAcao(context, "Pesagem", IconesApp.peso, Colors.indigo, const FormPesagem())),
+            Expanded(child: _botaoAcao(context, 'Pesagem', IconesApp.peso, Colors.indigo, const FormPesagem())),
             const SizedBox(width: 12),
-            Expanded(child: _botaoAcao(context, "Saúde", IconesApp.vacina, Colors.red, const FormSanitario())),
+            Expanded(child: _botaoAcao(context, 'Saúde', IconesApp.vacina, Colors.red, const FormSanitario())),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _botaoAcao(context, "Reprodução", IconesApp.reproducao, Colors.pink, const FormReprodutivo())),
+            Expanded(child: _botaoAcao(context, 'Reprodução', IconesApp.reproducao, Colors.pink, const FormReprodutivo())),
             const SizedBox(width: 12),
-            Expanded(child: _botaoAcao(context, "Leite", IconesApp.leite, Colors.blue, const FormLeite())),
+            Expanded(child: _botaoAcao(context, 'Leite', IconesApp.leite, Colors.blue, const FormLeite())),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _botaoAcao(context, "Abate", Icons.restaurant, Colors.brown, const FormAbate())),
+            Expanded(child: _botaoAcao(context, 'Abate', Icons.restaurant, Colors.brown, const FormAbate())),
             const Expanded(child: SizedBox.shrink()),
           ],
         ),
@@ -566,7 +567,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       drawer: const GavetaMenu(),
-      appBar: const AppBarPadrao(titulo: "BoviCheck"),
+      appBar: const AppBarPadrao(titulo: 'BoviCheck'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
@@ -575,7 +576,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
             Icon(IconesApp.piquete, size: 100, color: theme.colorScheme.primary.withValues(alpha: 0.3)),
             const SizedBox(height: 32),
             Text(
-              "Crie seu primeiro piquete",
+              'Crie seu primeiro piquete',
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -596,7 +597,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
                   await context.read<ProvedorFazenda>().carregarPropriedades();
                 },
                 icon: const Icon(Icons.add),
-                label: const Text("Criar Piquete", style: TextStyle(fontSize: 18)),
+                label: const Text('Criar Piquete', style: TextStyle(fontSize: 18)),
               ),
             ),
             const SizedBox(height: 48),
@@ -610,7 +611,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       drawer: const GavetaMenu(),
-      appBar: const AppBarPadrao(titulo: "BoviCheck"),
+      appBar: const AppBarPadrao(titulo: 'BoviCheck'),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
@@ -624,13 +625,13 @@ class _TelaDashboardState extends State<TelaDashboard> {
             ),
             const SizedBox(height: 32),
             Text(
-              "Cadastre seu primeiro animal",
+              'Cadastre seu primeiro animal',
               style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              "Agora cadastre os animais do seu rebanho. Informe brinco, nome, raça, data de nascimento e muito mais.",
+              'Agora cadastre os animais do seu rebanho. Informe brinco, nome, raça, data de nascimento e muito mais.',
               style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
               textAlign: TextAlign.center,
             ),
@@ -645,7 +646,7 @@ class _TelaDashboardState extends State<TelaDashboard> {
                   await context.read<ProvedorFazenda>().carregarPropriedades();
                 },
                 icon: const Icon(Icons.add),
-                label: const Text("Cadastrar Animal", style: TextStyle(fontSize: 18)),
+                label: const Text('Cadastrar Animal', style: TextStyle(fontSize: 18)),
               ),
             ),
             const SizedBox(height: 48),

@@ -27,6 +27,7 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
   
   late DateTime _dataSelecionada;
   String? _animalIdSelecionado;
+  String? _progenieIdSelecionado;
   String _tipoSelecionado = 'Inseminação (IA)';
   bool _salvando = false;
   bool _salvo = false;
@@ -49,6 +50,12 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
 
     if (widget.animalPreSelecionado != null) {
       _animalIdSelecionado = widget.animalPreSelecionado!.id;
+      // Machos só podem ter eventos de Desmame; ajusta o tipo para evitar
+      // salvar um evento de fêmea (IA/Parto/Diagnóstico) em um macho.
+      if (widget.animalPreSelecionado!.sexo != 'F' &&
+          _tipoSelecionado != 'Desmame') {
+        _tipoSelecionado = 'Desmame';
+      }
     }
   }
 
@@ -82,6 +89,27 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
       return;
     }
 
+    if (_tipoSelecionado != 'Desmame') {
+      final animal = context.read<ProvedorFazenda>().animais.firstWhere(
+            (a) => a.id == _animalIdSelecionado,
+            orElse: () => Animal(
+              id: _animalIdSelecionado!,
+              fazendaId: '',
+              loteId: '',
+              brinco: '?',
+              raca: '',
+              sexo: 'M',
+              categoria: '',
+              dataNascimento: DateTime.now(),
+              pesoAtualKg: 0,
+            ),
+          );
+      if (animal.sexo != 'F') {
+        _mostrarErro('Este evento só pode ser registrado para fêmeas');
+        return;
+      }
+    }
+
     setState(() => _salvando = true);
 
     try {
@@ -91,6 +119,7 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
         tipo: _tipoSelecionado,
         resultado: _resultadoController.text.isEmpty ? null : _resultadoController.text,
         observacao: _obsController.text.isEmpty ? null : _obsController.text,
+        progenieId: _tipoSelecionado == 'Parto' ? _progenieIdSelecionado : null,
       );
 
       await BancoDadosServico.instancia.salvarEventoReprodutivo(evento);
@@ -132,7 +161,22 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
         : provedor.animais.where((a) => a.sexo == 'F').toList();
 
     final formVazio = _resultadoController.text.isEmpty && _obsController.text.isEmpty
-        && widget.animalPreSelecionado == null && _animalIdSelecionado == null;
+        && widget.animalPreSelecionado == null && _animalIdSelecionado == null
+        && _progenieIdSelecionado == null;
+
+    // Filhotes candidatos ao vínculo: bezerros/as ativos, que não sejam a mãe,
+    // nascidos em uma janela ao redor da data do parto.
+    final bezerrosCandidatos = _tipoSelecionado == 'Parto' &&
+            _animalIdSelecionado != null
+        ? provedor.animais.where((a) {
+            final cat = a.categoria.toLowerCase();
+            if (cat != 'bezerro' && cat != 'bezerra') return false;
+            if (!a.isAtivo) return false;
+            if (a.id == _animalIdSelecionado) return false;
+            final diffDias = _dataSelecionada.difference(a.dataNascimento).inDays;
+            return diffDias >= -60 && diffDias <= 60;
+          }).toList()
+        : <Animal>[];
 
     return PopScope(
       canPop: _salvo || formVazio,
@@ -185,7 +229,10 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
                             child: Text('${a.brinco} - ${a.nome ?? "S/N"}'),
                           );
                         }).toList(),
-                        onChanged: (v) => setState(() => _animalIdSelecionado = v),
+                        onChanged: (v) => setState(() {
+                          _animalIdSelecionado = v;
+                          _progenieIdSelecionado = null;
+                        }),
                         validador: (v) => v == null ? 'Obrigatório' : null,
                       )
                     else
@@ -212,18 +259,60 @@ class _FormReprodutivoState extends State<FormReprodutivo> {
                       itens: _tipos.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                       onChanged: (v) {
                         setState(() {
-                          _tipoSelecionado = v!;
-                          if (_tipoSelecionado != 'Desmame' && _animalIdSelecionado != null) {
-                            final animal = context.read<ProvedorFazenda>().animais.firstWhere(
-                              (a) => a.id == _animalIdSelecionado,
-                              orElse: () => Animal(id: '', fazendaId: '', loteId: '', brinco: '', raca: '', sexo: 'M', categoria: '', dataNascimento: DateTime.now(), pesoAtualKg: 0),
-                            );
-                            if (animal.sexo != 'F') _animalIdSelecionado = null;
+                          final novoTipo = v!;
+                          final animal = _animalIdSelecionado != null
+                              ? context.read<ProvedorFazenda>().animais.firstWhere(
+                                  (a) => a.id == _animalIdSelecionado,
+                                  orElse: () => Animal(
+                                    id: _animalIdSelecionado!,
+                                    fazendaId: '',
+                                    loteId: '',
+                                    brinco: '?',
+                                    raca: '',
+                                    sexo: 'M',
+                                    categoria: '',
+                                    dataNascimento: DateTime.now(),
+                                    pesoAtualKg: 0,
+                                  ),
+                                )
+                              : null;
+                          if (novoTipo != 'Desmame' &&
+                              animal != null &&
+                              animal.sexo != 'F') {
+                            if (widget.animalPreSelecionado != null) {
+                              // Animal pré-selecionado é macho: mantém Desmame
+                              // para não deixar o usuário em beco sem saída.
+                              _mostrarErro(
+                                'Machos só podem ter eventos de Desmame',
+                              );
+                              return;
+                            }
+                            _animalIdSelecionado = null;
+                          }
+                          _tipoSelecionado = novoTipo;
+                          if (novoTipo != 'Parto') {
+                            _progenieIdSelecionado = null;
                           }
                         });
                       },
                     ),
                     const SizedBox(height: 16),
+                    if (_tipoSelecionado == 'Parto') ...[
+                      DropdownPadrao<String>(
+                        label: 'Bezerro nascido (opcional)',
+                        icone: Icons.child_care_outlined,
+                        valorSelecionado: _progenieIdSelecionado,
+                        itens: bezerrosCandidatos.map((a) {
+                          final nasc = DateFormat('dd/MM/yyyy').format(a.dataNascimento);
+                          return DropdownMenuItem(
+                            value: a.id,
+                            child: Text('${a.brinco} - ${a.nome ?? "S/N"} (nasc. $nasc)'),
+                          );
+                        }).toList(),
+                        onChanged: (v) => setState(() => _progenieIdSelecionado = v),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     CampoFormularioPadrao(
                       label: 'Resultado (Ex: Positivo, Confirmado)',
                       icone: Icons.info_outline_rounded,

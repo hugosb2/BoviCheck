@@ -133,7 +133,7 @@ class _TelaDetalhesPiqueteState extends State<TelaDetalhesPiquete> {
                     color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     IconesApp.piquete,
                     color: Colors.white,
                     size: 34,
@@ -178,7 +178,7 @@ class _TelaDetalhesPiqueteState extends State<TelaDetalhesPiquete> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SecaoLabel(texto: 'Ficha Técnica'),
+        const _SecaoLabel(texto: 'Ficha Técnica'),
         const SizedBox(height: 14),
         Row(
           children: [
@@ -272,7 +272,7 @@ class _TelaDetalhesPiqueteState extends State<TelaDetalhesPiquete> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SecaoLabel(texto: 'Rebanho'),
+        const _SecaoLabel(texto: 'Rebanho'),
         const SizedBox(height: 14),
         Row(
           children: [
@@ -373,7 +373,7 @@ class _TelaDetalhesPiqueteState extends State<TelaDetalhesPiquete> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SecaoLabel(texto: 'Ações Rápidas'),
+        const _SecaoLabel(texto: 'Ações Rápidas'),
         const SizedBox(height: 14),
         Row(
           children: [
@@ -500,7 +500,7 @@ class _TelaDetalhesPiqueteState extends State<TelaDetalhesPiquete> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _SecaoLabel(texto: 'Animais no Piquete'),
+            const _SecaoLabel(texto: 'Animais no Piquete'),
             if (animais.isNotEmpty)
               Text(
                 '${animais.length} ${animais.length == 1 ? 'registro' : 'registros'}',

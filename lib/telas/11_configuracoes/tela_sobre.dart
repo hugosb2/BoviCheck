@@ -24,6 +24,7 @@ class _TelaSobreState extends State<TelaSobre> {
 
   Future<void> _carregarInfo() async {
     final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
     setState(() {
       _versao = info.version;
       _buildNumber = info.buildNumber;
@@ -75,22 +76,22 @@ class _TelaSobreState extends State<TelaSobre> {
 
               const SizedBox(height: 32),
 
-              _CardInfo(
+              const _CardInfo(
                 titulo: 'Desenvolvedor',
                 valor: 'Hugo Santos Barros (Estudante)',
                 subtitulo: 'hugobs4987@gmail.com',
               ),
-              _CardInfo(
+              const _CardInfo(
                 titulo: 'Orientador',
                 valor: 'Francisco Hélio de Oliveira (Docente)',
                 subtitulo: 'francisco.oliveira@ifbaiano.edu.br',
               ),
-              _CardInfo(
+              const _CardInfo(
                 titulo: 'Coorientador',
                 valor: 'Hudson Barros Oliveira (Docente)',
                 subtitulo: 'hudson.barros@ifbaiano.edu.br',
               ),
-              _CardInfo(
+              const _CardInfo(
                 titulo: 'Colaboradora',
                 valor: 'Jacqueline Firmino de Sá (Docente)',
                 subtitulo: 'Aguardando contato',

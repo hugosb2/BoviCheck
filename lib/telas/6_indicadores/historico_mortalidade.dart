@@ -21,7 +21,7 @@ class _TelaHistoricoMortalidadeState extends State<TelaHistoricoMortalidade> {
     if (animais.isEmpty) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Taxa de Mortalidade'),
+        appBar: const AppBarPadrao(titulo: 'Taxa de Mortalidade'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -57,7 +57,7 @@ class _TelaHistoricoMortalidadeState extends State<TelaHistoricoMortalidade> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Taxa de Mortalidade'),
+      appBar: const AppBarPadrao(titulo: 'Taxa de Mortalidade'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 40),
         children: [
@@ -84,9 +84,9 @@ class _TelaHistoricoMortalidadeState extends State<TelaHistoricoMortalidade> {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Metas', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Row(children: [Icon(Icons.circle, size: 8, color: Colors.green), const SizedBox(width: 8), const Text('Ideal: < 3%')]),
-                Row(children: [Icon(Icons.circle, size: 8, color: Colors.orange), const SizedBox(width: 8), const Text('Atenção: 3 - 5%')]),
-                Row(children: [Icon(Icons.circle, size: 8, color: Colors.red), const SizedBox(width: 8), const Text('Ruim: > 5%')]),
+                const Row(children: [Icon(Icons.circle, size: 8, color: Colors.green), SizedBox(width: 8), Text('Ideal: < 3%')]),
+                const Row(children: [Icon(Icons.circle, size: 8, color: Colors.orange), SizedBox(width: 8), Text('Atenção: 3 - 5%')]),
+                const Row(children: [Icon(Icons.circle, size: 8, color: Colors.red), SizedBox(width: 8), Text('Ruim: > 5%')]),
               ]),
             ).animate().fadeIn(delay: 200.ms),
           ),
@@ -126,7 +126,7 @@ class _TelaHistoricoMortalidadeState extends State<TelaHistoricoMortalidade> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Taxa de Mortalidade', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('Taxa de Mortalidade', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$obitos óbitos registrados', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),

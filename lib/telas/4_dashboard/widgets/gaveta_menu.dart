@@ -43,7 +43,7 @@ class GavetaMenu extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
               physics: const BouncingScrollPhysics(),
               children: [
-                _LabelSecao(titulo: "Principal"),
+                const _LabelSecao(titulo: 'Principal'),
                 _ItemMenuModerno(
                   icon: IconesApp.dashboard,
                   titulo: 'Dashboard',
@@ -67,7 +67,7 @@ class GavetaMenu extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 28),
-                _LabelSecao(titulo: "Análise"),
+                const _LabelSecao(titulo: 'Análise'),
                 _ItemMenuModerno(
                   icon: IconesApp.indicadores,
                     titulo: 'Indicadores',
@@ -84,7 +84,7 @@ class GavetaMenu extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 28),
-                _LabelSecao(titulo: "Sistema"),
+                const _LabelSecao(titulo: 'Sistema'),
                 _ItemMenuModerno(
                   icon: IconesApp.configuracoes,
                   titulo: 'Configurações',
@@ -118,7 +118,7 @@ class GavetaMenu extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        "BoviCheck",
+                        'BoviCheck',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -236,7 +236,7 @@ class _HeaderGaveta extends StatelessWidget {
               IconButton(
                 onPressed: onGerenciar,
                 icon: const Icon(Icons.swap_horiz_rounded, color: Colors.white70, size: 24),
-                tooltip: "Gerenciar Fazendas",
+                tooltip: 'Gerenciar Fazendas',
               ),
             ],
           ),

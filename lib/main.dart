@@ -12,7 +12,7 @@ import 'telas/2_configuracao_inicial/tela_selecionar_fazenda.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
   runApp(const BoviCheckApp());
 }
 

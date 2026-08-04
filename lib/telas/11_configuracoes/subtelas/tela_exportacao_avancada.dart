@@ -17,7 +17,7 @@ class TelaExportacaoAvancada extends StatefulWidget {
 }
 
 class _TelaExportacaoAvancadaState extends State<TelaExportacaoAvancada> {
-  final _camposObrigatorios = <String>{'brinco', 'fazendaId', 'loteId'};
+  final _camposObrigatorios = <String>{'brinco', 'fazendaId', 'loteId', 'raca', 'sexo', 'categoria', 'dataNascimento', 'pesoAtualKg', 'isAtivo'};
   bool _carregando = true;
   bool _tudoSelecionado = false;
   List<Propriedade> _fazendas = [];
@@ -29,7 +29,8 @@ class _TelaExportacaoAvancadaState extends State<TelaExportacaoAvancada> {
   final Set<String> _animaisSelecionados = {};
   
   final Set<String> _camposAnimalSelecionados = {
-    'brinco', 'nome', 'raca', 'sexo', 'categoria', 'dataNascimento', 'pesoAtualKg'
+    'brinco', 'nome', 'raca', 'sexo', 'categoria', 'dataNascimento', 'pesoAtualKg', 'dataObito', 'isAtivo',
+    'fazendaId', 'loteId',
   };
 
   final Map<String, String> _todosCamposAnimal = {

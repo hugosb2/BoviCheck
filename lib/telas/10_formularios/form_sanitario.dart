@@ -141,7 +141,7 @@ class _FormSanitarioState extends State<FormSanitario> {
                         label: 'Animal',
                         svgIcone: IconesApp.iconAnimalSvg,
                         valorSelecionado: _animalIdSelecionado,
-                        itens: provedor.animais.map((a) => DropdownMenuItem(value: a.id, child: Text('${a.brinco} - ${a.nome ?? "S/N"}'))).toList(),
+                        itens: provedor.animais.where((a) => a.isAtivo).map((a) => DropdownMenuItem(value: a.id, child: Text('${a.brinco} - ${a.nome ?? "S/N"}'))).toList(),
                         onChanged: (v) => setState(() => _animalIdSelecionado = v),
                       )
                     else

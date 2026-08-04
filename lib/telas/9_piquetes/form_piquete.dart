@@ -74,7 +74,11 @@ class _FormPiqueteState extends State<FormPiquete> {
         areaHectares: double.tryParse(_areaController.text.replaceAll(',', '.')) ?? 0.0,
       );
 
-      await provedor.adicionarPiquete(novoPiquete);
+      if (widget.piqueteExistente != null) {
+        await provedor.atualizarPiquete(novoPiquete);
+      } else {
+        await provedor.adicionarPiquete(novoPiquete);
+      }
       _salvo = true;
 
       if (mounted) {

@@ -114,8 +114,18 @@ class _FormAnimalState extends State<FormAnimal> {
     final provedor = context.read<ProvedorFazenda>();
 
     try {
+      if (_status == 'Morto' && _dataObito == null) {
+        _erro('Informe a data do óbito para o status Morto');
+        return;
+      }
+      if (_status == 'Vendido' && _dataSaida == null) {
+        _erro('Informe a data da saída para o status Vendido');
+        return;
+      }
+
+      final ehAtivo = _status == 'Ativo';
       final novoAnimal = Animal(
-        id: widget.animalExistente?.id ?? _brincoController.text,
+        id: widget.animalExistente?.id,
         fazendaId: provedor.propriedadeAtiva!.id,
         loteId: _piqueteSelecionadoId!,
         brinco: _brincoController.text,
@@ -125,12 +135,16 @@ class _FormAnimalState extends State<FormAnimal> {
         categoria: _categoria,
         dataNascimento: _dataNascimento,
         pesoAtualKg: double.tryParse(_pesoController.text.replaceAll(',', '.')) ?? 0.0,
-        isAtivo: _status == 'Ativo',
+        isAtivo: ehAtivo,
         status: _status,
-        dataObito: _dataObito,
-        causaObito: _causaObitoController.text.isEmpty ? null : _causaObitoController.text,
-        dataSaida: _dataSaida,
-        motivoSaida: _motivoSaidaController.text.isEmpty ? null : _motivoSaidaController.text,
+        dataObito: _status == 'Morto' ? _dataObito : null,
+        causaObito: _status == 'Morto'
+            ? (_causaObitoController.text.isEmpty ? null : _causaObitoController.text)
+            : null,
+        dataSaida: _status == 'Vendido' ? _dataSaida : null,
+        motivoSaida: _status == 'Vendido'
+            ? (_motivoSaidaController.text.isEmpty ? null : _motivoSaidaController.text)
+            : null,
       );
 
       final db = BancoDadosServico.instancia;

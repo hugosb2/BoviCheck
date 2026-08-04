@@ -5,7 +5,7 @@ class IAGeminiCliente {
   Future<String> analisarRebanho(Map<String, dynamic> dadosRebanho) async {
     try {
       if (!Configuracao.temApiKey) {
-        return "⚠️ Configuração Pendente: Adicione sua API Key do Google Gemini no arquivo `configuracao.dart`.";
+        return '⚠️ Configuração Pendente: Adicione sua API Key do Google Gemini no arquivo `configuracao.dart`.';
       }
 
       await Future.delayed(const Duration(seconds: 2));
@@ -25,7 +25,7 @@ Baseado nos dados fornecidos (${dadosRebanho['totalAnimais']} animais), o rebanh
 3.  📊 **Dados**: Aumentar a frequência de pesagens para melhorar a precisão do GMD.
       ''';
     } catch (e) {
-      return "Erro ao conectar com a IA: $e. Verifique sua conexão.";
+      return 'Erro ao conectar com a IA: $e. Verifique sua conexão.';
     }
   }
 

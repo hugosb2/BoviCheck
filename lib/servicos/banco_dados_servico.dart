@@ -192,30 +192,30 @@ class BancoDadosServico {
           'ALTER TABLE lotes ADD COLUMN areaHectares REAL DEFAULT 0',
         );
       } catch (e) {
-        debugPrint("Colunas sistemaProducao/areaHectares já existem ou erro: $e");
+        debugPrint('Colunas sistemaProducao/areaHectares já existem ou erro: $e');
       }
     }
     if (oldVersion < 4) {
       // 1. Novas colunas para Lotes (caso tenham sido esquecidas em versões anteriores do código)
-      try { await db.execute("ALTER TABLE lotes ADD COLUMN capacidade INTEGER NOT NULL DEFAULT 0"); } catch (_) {}
+      try { await db.execute('ALTER TABLE lotes ADD COLUMN capacidade INTEGER NOT NULL DEFAULT 0'); } catch (_) {}
       try { await db.execute("ALTER TABLE lotes ADD COLUMN descricao TEXT NOT NULL DEFAULT ''"); } catch (_) {}
 
       // 2. Novas colunas para Animais
       try { await db.execute("ALTER TABLE animais ADD COLUMN status TEXT DEFAULT 'Ativo'"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN causaObito TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN paiId TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN maeId TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN dataSaida TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN motivoSaida TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN pesoVendaKg REAL"); } catch (_) {}
-      try { await db.execute("ALTER TABLE animais ADD COLUMN valorVenda REAL"); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN causaObito TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN paiId TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN maeId TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN dataSaida TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN motivoSaida TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN pesoVendaKg REAL'); } catch (_) {}
+      try { await db.execute('ALTER TABLE animais ADD COLUMN valorVenda REAL'); } catch (_) {}
 
       // 3. Novas colunas para Pesagens e Leite
-      try { await db.execute("ALTER TABLE pesagens ADD COLUMN observacao TEXT"); } catch (_) {}
-      try { await db.execute("ALTER TABLE producao_leite ADD COLUMN observacao TEXT"); } catch (_) {}
+      try { await db.execute('ALTER TABLE pesagens ADD COLUMN observacao TEXT'); } catch (_) {}
+      try { await db.execute('ALTER TABLE producao_leite ADD COLUMN observacao TEXT'); } catch (_) {}
     }
     if (oldVersion < 5) {
-      try { await db.execute("ALTER TABLE eventos_sanitarios ADD COLUMN dose TEXT"); } catch (_) {}
+      try { await db.execute('ALTER TABLE eventos_sanitarios ADD COLUMN dose TEXT'); } catch (_) {}
     }
   }
 
@@ -311,12 +311,27 @@ class BancoDadosServico {
       pesagem.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    await db.update(
-      'animais',
-      {'pesoAtualKg': pesagem.pesoKg},
-      where: 'id = ?',
+    // Só atualiza o peso atual se esta pesagem for a mais recente do animal,
+    // para não sobrescrever o peso atual com uma pesagem histórica.
+    final maisRecente = await db.query(
+      'pesagens',
+      columns: ['data', 'pesoKg'],
+      where: 'animalId = ?',
       whereArgs: [pesagem.animalId],
+      orderBy: 'data DESC',
+      limit: 1,
     );
+    if (maisRecente.isNotEmpty) {
+      final dataMaisRecente = DateTime.parse(maisRecente.first['data'] as String);
+      if (!pesagem.data.isBefore(dataMaisRecente)) {
+        await db.update(
+          'animais',
+          {'pesoAtualKg': pesagem.pesoKg},
+          where: 'id = ?',
+          whereArgs: [pesagem.animalId],
+        );
+      }
+    }
   }
 
   Future<List<Pesagem>> getPesagensPorAnimal(String animalId) async {
@@ -697,7 +712,18 @@ class BancoDadosServico {
       // 3. Importar Animais
       final animais = data['animais'] as List;
       for (final a in animais) {
-        await txn.insert('animais', Map<String, dynamic>.from(a),
+        final animalMap = Map<String, dynamic>.from(a);
+        // Arquivos gerados por versões antigas podem omitir colunas NOT NULL
+        // (ex.: isAtivo). Aplica padrões para não quebrar a importação.
+        animalMap.putIfAbsent('isAtivo', () => 1);
+        animalMap.putIfAbsent('status', () => 'Ativo');
+        animalMap.putIfAbsent('raca', () => 'Desconhecida');
+        animalMap.putIfAbsent('sexo', () => 'M');
+        animalMap.putIfAbsent('categoria', () => 'Outro');
+        animalMap.putIfAbsent('brinco', () => animalMap['id']);
+        animalMap.putIfAbsent('dataNascimento', () => DateTime.now().toIso8601String());
+        animalMap.putIfAbsent('pesoAtualKg', () => 0);
+        await txn.insert('animais', animalMap,
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
 

@@ -21,10 +21,17 @@ class _TelaHistoricoIEPState extends State<TelaHistoricoIEP> {
     final eventos = provedor.eventosReprodutivos;
     final partos = eventos.where((e) => e.tipo == 'Parto').toList();
 
-    if (partos.length < 2) {
+    // Agrupa partos por animal e verifica se algum animal tem 2+ partos.
+    final Map<String, List<DateTime>> partosPorVaca = {};
+    for (var e in partos) {
+      partosPorVaca.putIfAbsent(e.animalId, () => []).add(e.data);
+    }
+    final possuiIep = partosPorVaca.values.any((datas) => datas.length >= 2);
+
+    if (!possuiIep) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Intervalo Entre Partos'),
+        appBar: const AppBarPadrao(titulo: 'Intervalo Entre Partos'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -47,11 +54,6 @@ class _TelaHistoricoIEPState extends State<TelaHistoricoIEP> {
     }
 
     // Agrupa partos por animal e calcula IEPs
-    final Map<String, List<DateTime>> partosPorVaca = {};
-    for (var e in partos) {
-      partosPorVaca.putIfAbsent(e.animalId, () => []).add(e.data);
-    }
-
     final ieps = <double>[];
     final meses = <String, List<double>>{};
     partosPorVaca.forEach((id, datas) {
@@ -76,7 +78,7 @@ class _TelaHistoricoIEPState extends State<TelaHistoricoIEP> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Intervalo Entre Partos'),
+      appBar: const AppBarPadrao(titulo: 'Intervalo Entre Partos'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
@@ -143,7 +145,7 @@ class _TelaHistoricoIEPState extends State<TelaHistoricoIEP> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('IEP Médio', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('IEP Médio', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$totalPartos partos registrados', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),
@@ -175,7 +177,7 @@ class _TelaHistoricoIEPState extends State<TelaHistoricoIEP> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(d.label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('${d.valor.toStringAsFixed(1)} meses', style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 18)),
+          Text('${d.valor.toStringAsFixed(1)} meses', style: const TextStyle(color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 18)),
         ],
       ),
     );

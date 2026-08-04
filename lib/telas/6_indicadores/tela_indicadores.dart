@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../estilos/tema.dart';
 import '../../estilos/cores.dart';
 import '../../provedores/provedor_fazenda.dart';
-import '../../modelos/animal.dart';
-import '../../modelos/eventos/pesagem.dart';
-import '../../modelos/eventos/evento_reprodutivo.dart';
-import '../../modelos/eventos/producao_leite.dart';
+import '../../servicos/calculadora_indicadores.dart';
 import 'historico_reproducao.dart';
 import 'historico_leite.dart';
 import 'historico_pesagem.dart';
@@ -60,7 +57,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
     final theme = Theme.of(context);
     final provedor = context.watch<ProvedorFazenda>();
 
-    if (!_inicializado || provedor.propriedadeAtiva == null) {
+    if (!_inicializado) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: const AppBarPadrao(titulo: 'Performance'),
@@ -68,14 +65,24 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
       );
     }
 
-    // --- LÓGICA DE FILTRAGEM ---
+    if (provedor.propriedadeAtiva == null) {
+      return Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        appBar: const AppBarPadrao(titulo: 'Performance'),
+        body: const Center(
+          child: Text('Nenhuma fazenda selecionada.'),
+        ),
+      );
+    }
+
+    // --- LÃ“GICA DE FILTRAGEM ---
     final animaisFiltrados = _loteSelecionadoId == null
         ? provedor.animais
         : provedor.animais.where((a) => a.loteId == _loteSelecionadoId).toList();
 
     final idsAnimais = animaisFiltrados.map((a) => a.id).toSet();
 
-    final calc = _CalculadoraAvancada(
+    final calc = CalculadoraIndicadores(
       animais: animaisFiltrados,
       pesagens:
           provedor.pesagens.where((e) => idsAnimais.contains(e.animalId)).toList(),
@@ -111,12 +118,12 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String?>(
                           value: _loteSelecionadoId,
-                          hint: const Text("Todos os Piquetes"),
+                          hint: const Text('Todos os Piquetes'),
                           isExpanded: true,
                           icon: const Icon(Icons.keyboard_arrow_down_rounded),
                           items: [
                             const DropdownMenuItem(
-                                value: null, child: Text("Rebanho Geral")),
+                                value: null, child: Text('Rebanho Geral')),
                             ...provedor.piquetes.map((l) => DropdownMenuItem(
                                 value: l.id, child: Text(l.nome))),
                           ],
@@ -146,8 +153,8 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                 ),
                 const SizedBox(height: 24),
 
-                // --- SEÇÃO 1: DESTAQUES REPRODUTIVOS (GRÁFICOS) ---
-                const _TituloSecao('Eficiência Reprodutiva'),
+                // --- SEÃ‡ÃƒO 1: DESTAQUES REPRODUTIVOS (GRÃFICOS) ---
+                const _TituloSecao('EficiÃªncia Reprodutiva'),
                 Row(
                   children: [
                     Expanded(
@@ -156,7 +163,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                         porcentagem: calc.taxaNatalidade,
                         meta: 80,
                         cor: Colors.pink,
-                        tooltip: 'Nascimentos / Fêmeas Aptas',
+                        tooltip: 'Nascimentos / FÃªmeas Aptas',
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoReproducao())),
                       ),
                     ),
@@ -167,7 +174,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                         porcentagem: calc.taxaPrenhez,
                         meta: 85,
                         cor: Colors.purple,
-                        tooltip: 'Diagnósticos Positivos',
+                        tooltip: 'DiagnÃ³sticos Positivos',
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoReproducao())),
                       ),
                     ),
@@ -176,7 +183,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
 
                 const SizedBox(height: 12),
 
-                // Dados Secundários de Reprodução
+                // Dados SecundÃ¡rios de ReproduÃ§Ã£o
                 Row(
                   children: [
                     Expanded(
@@ -191,7 +198,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _CardMetricaSimples(
-                        label: '1º Parto (Meses)',
+                        label: '1Âº Parto (Meses)',
                         valor:
                             calc.idadePrimeiroPartoMeses.toStringAsFixed(1),
                         meta: 'Meta: < 30',
@@ -204,16 +211,16 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
 
                 const SizedBox(height: 32),
 
-                // --- SEÇÃO 2: PRODUÇÃO (CARDS GRANDES) ---
-                const _TituloSecao('Produção & Ganho'),
+                // --- SEÃ‡ÃƒO 2: PRODUÃ‡ÃƒO (CARDS GRANDES) ---
+                const _TituloSecao('ProduÃ§Ã£o & Ganho'),
 
                 _CardProducaoDetalhado(
-                  titulo: 'GMD Médio',
+                  titulo: 'GMD MÃ©dio',
                   valor: '${calc.gmdNascDesmame.toStringAsFixed(3)} kg/dia',
                   icone: Icons.show_chart_rounded,
                   cor: Colors.blue,
                   status: calc.getStatusGMD(),
-                  subtitulo: 'Primeira e última pesagem de cada animal',
+                  subtitulo: 'Primeira e Ãºltima pesagem de cada animal',
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoGMD())),
                 ),
                 const SizedBox(height: 12),
@@ -235,8 +242,8 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                       child: _CardMetricaSimples(
                         label: 'Leite / Dia',
                         valor: '${calc.mediaLeiteDia.toStringAsFixed(1)} L',
-                        meta: 'Média Vaca',
-                        status: _Status.neutro,
+                        meta: 'MÃ©dia Vaca',
+                        status: StatusIndicador.neutro,
                         icone: Icons.water_drop,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoLeite())),
                       ),
@@ -246,8 +253,8 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
 
                 const SizedBox(height: 32),
 
-                // --- SEÇÃO 3: SANIDADE (ALERTAS) ---
-                const _TituloSecao('Saúde do Rebanho'),
+                // --- SEÃ‡ÃƒO 3: SANIDADE (ALERTAS) ---
+                const _TituloSecao('SaÃºde do Rebanho'),
 
                 _CardSanidade(
                   taxaMortalidade: calc.taxaMortalidade,
@@ -257,7 +264,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
 
                 const SizedBox(height: 12),
 
-                // --- SEÇÃO 4: PRODUÇÃO DE LEITE E PESAGENS ---
+                // --- SEÃ‡ÃƒO 4: PRODUÃ‡ÃƒO DE LEITE E PESAGENS ---
                 Row(
                   children: [
                     Expanded(
@@ -265,7 +272,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                         label: 'Pesagens',
                         valor: '${provedor.pesagens.length} registros',
                         meta: 'Total registrado',
-                        status: _Status.neutro,
+                        status: StatusIndicador.neutro,
                         icone: Icons.monitor_weight,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoPesagem())),
                       ),
@@ -276,7 +283,7 @@ class _TelaIndicadoresState extends State<TelaIndicadores> {
                         label: 'Eventos Reprod.',
                         valor: '${provedor.eventosReprodutivos.length} eventos',
                         meta: 'Total registrado',
-                        status: _Status.neutro,
+                        status: StatusIndicador.neutro,
                         icone: Icons.favorite_border,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TelaHistoricoReproducao())),
                       ),
@@ -421,7 +428,7 @@ class _CardMetricaSimples extends StatelessWidget {
   final String label;
   final String valor;
   final String meta;
-  final _Status status;
+  final StatusIndicador status;
   final IconData? icone;
   final VoidCallback? onTap;
 
@@ -493,7 +500,7 @@ class _CardProducaoDetalhado extends StatelessWidget {
   final String valor;
   final IconData icone;
   final Color cor;
-  final _Status status;
+  final StatusIndicador status;
   final String subtitulo;
   final VoidCallback? onTap;
 
@@ -574,7 +581,7 @@ class _CardProducaoDetalhado extends StatelessWidget {
 
 class _CardSanidade extends StatelessWidget {
   final double taxaMortalidade;
-  final _Status status;
+  final StatusIndicador status;
   final VoidCallback? onTap;
 
   const _CardSanidade({required this.taxaMortalidade, required this.status, this.onTap});
@@ -582,7 +589,7 @@ class _CardSanidade extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isRuim = status == _Status.ruim;
+    final isRuim = status == StatusIndicador.ruim;
 
     Widget card = Container(
       padding: const EdgeInsets.all(20),
@@ -611,8 +618,8 @@ class _CardSanidade extends StatelessWidget {
                             : theme.colorScheme.onPrimaryContainer)),
                 Text(
                     isRuim
-                        ? 'Atenção! Taxa acima do aceitável.'
-                        : 'Dentro dos padrões esperados.',
+                        ? 'AtenÃ§Ã£o! Taxa acima do aceitÃ¡vel.'
+                        : 'Dentro dos padrÃµes esperados.',
                     style: TextStyle(
                         fontSize: 12,
                         color: (isRuim
@@ -647,7 +654,7 @@ class _CardSanidade extends StatelessWidget {
 }
 
 class _ChipStatus extends StatelessWidget {
-  final _Status status;
+  final StatusIndicador status;
   const _ChipStatus({required this.status});
 
   @override
@@ -655,19 +662,19 @@ class _ChipStatus extends StatelessWidget {
     IconData icon;
     Color color;
     switch (status) {
-      case _Status.bom:
+      case StatusIndicador.bom:
         icon = Icons.arrow_upward;
         color = Colors.green;
         break;
-      case _Status.atencao:
+      case StatusIndicador.atencao:
         icon = Icons.remove;
         color = Colors.orange;
         break;
-      case _Status.ruim:
+      case StatusIndicador.ruim:
         icon = Icons.arrow_downward;
         color = Colors.red;
         break;
-      case _Status.neutro:
+      case StatusIndicador.neutro:
         icon = Icons.horizontal_rule;
         color = Colors.grey;
         break;
@@ -712,203 +719,18 @@ class _PeriodoChip extends StatelessWidget {
   }
 }
 
-Color _getCorStatus(_Status s) {
+Color _getCorStatus(StatusIndicador s) {
   switch (s) {
-    case _Status.bom:
+    case StatusIndicador.bom:
       return CoresApp.sucesso;
-    case _Status.atencao:
+    case StatusIndicador.atencao:
       return CoresApp.atencao;
-    case _Status.ruim:
+    case StatusIndicador.ruim:
       return CoresApp.erro;
-    case _Status.neutro:
+    case StatusIndicador.neutro:
       return Colors.grey;
   }
 }
 
 // ============================================================================
-// LÓGICA DE NEGÓCIO (CALCULADORA)
-// ============================================================================
 
-enum _Status { bom, atencao, ruim, neutro }
-
-class _CalculadoraAvancada {
-  final List<Animal> animais;
-  final List<Pesagem> pesagens;
-  final List<EventoReprodutivo> reprodutivos;
-  final List<ProducaoLeite> leite;
-  final DateTime inicio;
-  final DateTime fim;
-
-  _CalculadoraAvancada({
-    required this.animais,
-    required this.pesagens,
-    required this.reprodutivos,
-    required this.leite,
-    required this.inicio,
-    required this.fim,
-  });
-
-  double get taxaNatalidade {
-    final nascimentos = reprodutivos
-        .where((e) =>
-            e.tipo == 'Parto' && !e.data.isAfter(fim) && !e.data.isBefore(inicio))
-        .length;
-    final femeasAptas =
-        animais.where((a) => a.sexo == 'F' && a.calcularIdadeMeses() >= 24).length;
-    if (femeasAptas == 0) return 0.0;
-    return (nascimentos / femeasAptas) * 100;
-  }
-
-  double get taxaPrenhez {
-    final diagnosticos = reprodutivos
-        .where((e) =>
-            e.tipo.contains('Diagnóstico') &&
-            !e.data.isAfter(fim) &&
-            !e.data.isBefore(inicio))
-        .toList();
-    if (diagnosticos.isEmpty) return 0.0;
-    final positivos = diagnosticos
-        .where((e) =>
-            (e.resultado?.toLowerCase().contains('prenhe') ?? false) ||
-            (e.resultado?.toLowerCase().contains('positivo') ?? false))
-        .length;
-    return (positivos / diagnosticos.length) * 100;
-  }
-
-  double get iepMeses {
-    Map<String, List<DateTime>> partosPorVaca = {};
-    for (var evento in reprodutivos) {
-      if (evento.tipo == 'Parto') {
-        if (!partosPorVaca.containsKey(evento.animalId)) {
-          partosPorVaca[evento.animalId] = [];
-        }
-        partosPorVaca[evento.animalId]!.add(evento.data);
-      }
-    }
-    List<int> intervalosDias = [];
-    partosPorVaca.forEach((id, datas) {
-      if (datas.length >= 2) {
-        datas.sort();
-        for (int i = 0; i < datas.length - 1; i++) {
-          final partoAtual = datas[i + 1];
-          if (!partoAtual.isAfter(fim) && !partoAtual.isBefore(inicio)) {
-            final diff = partoAtual.difference(datas[i]).inDays;
-            if (diff > 250) intervalosDias.add(diff);
-          }
-        }
-      }
-    });
-    if (intervalosDias.isEmpty) return 0.0;
-    return (intervalosDias.reduce((a, b) => a + b) / intervalosDias.length) /
-        30.44;
-  }
-
-  double get idadePrimeiroPartoMeses {
-    List<double> idadesMeses = [];
-    for (var animal in animais.where((a) => a.sexo == 'F')) {
-      final partos = reprodutivos
-          .where((e) => e.animalId == animal.id && e.tipo == 'Parto')
-          .toList()
-        ..sort((a, b) => a.data.compareTo(b.data));
-      if (partos.isNotEmpty) {
-        final primeiroParto = partos.first;
-        if (!primeiroParto.data.isAfter(fim) && !primeiroParto.data.isBefore(inicio)) {
-          final idadeDias =
-              primeiroParto.data.difference(animal.dataNascimento).inDays;
-          if (idadeDias > 500) idadesMeses.add(idadeDias / 30.44);
-        }
-      }
-    }
-    if (idadesMeses.isEmpty) return 0.0;
-    return idadesMeses.reduce((a, b) => a + b) / idadesMeses.length;
-  }
-
-  double get gmdNascDesmame {
-    Map<String, List<Pesagem>> porAnimal = {};
-    for (var p in pesagens) {
-      porAnimal.putIfAbsent(p.animalId, () => []).add(p);
-    }
-    List<double> gmds = [];
-    for (var lista in porAnimal.values) {
-      if (lista.length < 2) continue;
-      lista.sort((a, b) => a.data.compareTo(b.data));
-      final ultima = lista.last;
-      if (ultima.data.isAfter(fim) || ultima.data.isBefore(inicio)) continue;
-      final primeira = lista.first;
-      final dias = ultima.data.difference(primeira.data).inDays;
-      if (dias < 7) continue;
-      final ganho = ultima.pesoKg - primeira.pesoKg;
-      gmds.add(ganho / dias);
-    }
-    if (gmds.isEmpty) return 0.0;
-    return gmds.reduce((a, b) => a + b) / gmds.length;
-  }
-
-  double get taxaDesmame {
-    final idsNascidosPeriodo = reprodutivos
-        .where((e) =>
-            e.tipo == 'Parto' && !e.data.isAfter(fim) && !e.data.isBefore(inicio))
-        .map((e) => e.animalId)
-        .toSet();
-    if (idsNascidosPeriodo.isEmpty) return 0.0;
-    final idsDesmamados = reprodutivos
-        .where((e) => e.tipo == 'Desmame')
-        .map((e) => e.animalId)
-        .toSet();
-    final desmamados = idsNascidosPeriodo.where((id) => idsDesmamados.contains(id)).length;
-    return (desmamados / idsNascidosPeriodo.length) * 100;
-  }
-
-  double get taxaMortalidade {
-    final obitos = animais
-        .where((a) =>
-            !a.isAtivo &&
-            a.dataObito != null &&
-            !a.dataObito!.isAfter(fim) &&
-            !a.dataObito!.isBefore(inicio))
-        .length;
-    final total = animais.length;
-    if (total == 0) return 0.0;
-    return (obitos / total) * 100;
-  }
-
-  double get mediaLeiteDia {
-    final registros = leite
-        .where((l) => !l.data.isAfter(fim) && !l.data.isBefore(inicio))
-        .toList();
-    if (registros.isEmpty) return 0.0;
-    Map<String, Map<String, double>> producaoPorVacaDia = {};
-    for (var r in registros) {
-      final chaveDia = '${r.animalId}_${r.data.toIso8601String().substring(0, 10)}';
-      producaoPorVacaDia[chaveDia] ??= {r.animalId: 0.0};
-      producaoPorVacaDia[chaveDia]![r.animalId] =
-          (producaoPorVacaDia[chaveDia]![r.animalId] ?? 0.0) + r.litros;
-    }
-    if (producaoPorVacaDia.isEmpty) return 0.0;
-    final totalLitros =
-        producaoPorVacaDia.values.fold(0.0, (sum, map) => sum + map.values.first);
-    return totalLitros / producaoPorVacaDia.length;
-  }
-
-  _Status getStatusNatalidade() => taxaNatalidade <= 0
-      ? _Status.neutro
-      : (taxaNatalidade >= 80 ? _Status.bom : (taxaNatalidade >= 60 ? _Status.atencao : _Status.ruim));
-  _Status getStatusPrenhez() => taxaPrenhez <= 0
-      ? _Status.neutro
-      : (taxaPrenhez >= 85 ? _Status.bom : (taxaPrenhez >= 70 ? _Status.atencao : _Status.ruim));
-  _Status getStatusIEP() => iepMeses <= 0
-      ? _Status.neutro
-      : (iepMeses <= 14 ? _Status.bom : (iepMeses <= 16 ? _Status.atencao : _Status.ruim));
-  _Status getStatusIdadeParto() => idadePrimeiroPartoMeses <= 0
-      ? _Status.neutro
-      : (idadePrimeiroPartoMeses <= 30 ? _Status.bom : (idadePrimeiroPartoMeses <= 36 ? _Status.atencao : _Status.ruim));
-  _Status getStatusGMD() => gmdNascDesmame <= 0
-      ? _Status.neutro
-      : (gmdNascDesmame >= 0.700 ? _Status.bom : (gmdNascDesmame >= 0.500 ? _Status.atencao : _Status.ruim));
-  _Status getStatusDesmame() => taxaDesmame <= 0
-      ? _Status.neutro
-      : (taxaDesmame >= 85 ? _Status.bom : (taxaDesmame >= 50 ? _Status.atencao : _Status.ruim));
-  _Status getStatusMortalidade() => taxaMortalidade <= 3
-      ? _Status.bom
-      : (taxaMortalidade <= 5 ? _Status.atencao : _Status.ruim);
-}

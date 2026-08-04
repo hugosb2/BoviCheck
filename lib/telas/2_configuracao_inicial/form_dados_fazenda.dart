@@ -55,6 +55,7 @@ class _FormDadosFazendaState extends State<FormDadosFazenda> {
       _proprietarioController.text = p.nomeProprietario;
       _cidadeController.text = p.cidade;
       _areaController.text = p.areaTotalHectares.toString().replaceAll('.', ',');
+      _cepController.text = p.cep ?? '';
       _sistemaProducao = p.sistemaProducao;
       if (_estados.contains(p.estado)) _estadoSelecionado = p.estado;
     }
@@ -157,14 +158,20 @@ class _FormDadosFazendaState extends State<FormDadosFazenda> {
     setState(() => _salvando = true);
 
     try {
+      final original = widget.propriedadeExistente;
       final novaFazenda = Propriedade(
-        id: widget.propriedadeExistente?.id ?? const Uuid().v4(),
+        id: original?.id ?? const Uuid().v4(),
         nomeFazenda: _nomeFazendaController.text.trim(),
         nomeProprietario: _proprietarioController.text.trim(),
         cidade: _cidadeController.text.trim(),
         estado: _estadoSelecionado!,
         sistemaProducao: _sistemaProducao,
         areaTotalHectares: double.tryParse(_areaController.text.replaceAll(',', '.')) ?? 0.0,
+        cep: _cepController.text.isEmpty ? original?.cep : _cepController.text.trim(),
+        gpsLat: original?.gpsLat,
+        gpsLong: original?.gpsLong,
+        areaProducaoHectares: original?.areaProducaoHectares ?? 0.0,
+        areaUtilizadaHectares: original?.areaUtilizadaHectares ?? 0.0,
       );
 
       if (widget.propriedadeExistente != null) {

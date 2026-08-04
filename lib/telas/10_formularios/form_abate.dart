@@ -79,10 +79,47 @@ class _FormAbateState extends State<FormAbate> {
         observacao: _observacaoController.text.isEmpty ? null : _observacaoController.text,
       );
 
-      await BancoDadosServico.instancia.salvarAbate(abate.toMap());
+      final db = BancoDadosServico.instancia;
+      await db.salvarAbate(abate.toMap());
 
       if (!mounted) return;
       final provedor = context.read<ProvedorFazenda>();
+
+      final animal = provedor.animais.firstWhere(
+        (a) => a.id == _animalIdSelecionado,
+        orElse: () => Animal(
+          id: _animalIdSelecionado!,
+          fazendaId: provedor.propriedadeAtiva?.id ?? '',
+          loteId: '',
+          brinco: '?',
+          raca: '',
+          sexo: 'M',
+          categoria: 'Indefinido',
+          dataNascimento: _dataAbate,
+          pesoAtualKg: double.tryParse(_pesoVivoController.text.replaceAll(',', '.')) ?? 0.0,
+        ),
+      );
+
+      final animalAbatido = Animal(
+        id: animal.id,
+        fazendaId: animal.fazendaId,
+        loteId: animal.loteId,
+        brinco: animal.brinco,
+        nome: animal.nome,
+        raca: animal.raca,
+        sexo: animal.sexo,
+        categoria: animal.categoria,
+        dataNascimento: animal.dataNascimento,
+        pesoAtualKg: animal.pesoAtualKg,
+        isAtivo: false,
+        status: 'Vendido',
+        dataSaida: _dataAbate,
+        motivoSaida: 'Abate',
+        paiId: animal.paiId,
+        maeId: animal.maeId,
+      );
+      await db.updateAnimal(animalAbatido);
+
       await provedor.carregarAnimais(provedor.propriedadeAtiva!.id);
 
       if (!mounted) return;

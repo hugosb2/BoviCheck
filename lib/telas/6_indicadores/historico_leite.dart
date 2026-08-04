@@ -23,7 +23,7 @@ class _TelaHistoricoLeiteState extends State<TelaHistoricoLeite> {
     if (registros.isEmpty) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Produção de Leite'),
+        appBar: const AppBarPadrao(titulo: 'Produção de Leite'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +59,7 @@ class _TelaHistoricoLeiteState extends State<TelaHistoricoLeite> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Produção de Leite'),
+      appBar: const AppBarPadrao(titulo: 'Produção de Leite'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
@@ -114,7 +114,7 @@ class _TelaHistoricoLeiteState extends State<TelaHistoricoLeite> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Média Geral', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('Média Geral', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$totalRegistros registros', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),
@@ -152,7 +152,7 @@ class _TelaHistoricoLeiteState extends State<TelaHistoricoLeite> {
               Text('Média: ${d.media.toStringAsFixed(1)} L', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
             ],
           ),
-          Text('${d.valor.toStringAsFixed(0)} L', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 18)),
+          Text('${d.valor.toStringAsFixed(0)} L', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 18)),
         ],
       ),
     );

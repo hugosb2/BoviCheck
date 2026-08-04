@@ -26,7 +26,7 @@ class _TelaDetalhesFazendaState extends State<TelaDetalhesFazenda> {
 
     if (fazenda == null) {
       return const Scaffold(
-          body: Center(child: Text("Nenhuma fazenda selecionada.")));
+          body: Center(child: Text('Nenhuma fazenda selecionada.')));
     }
 
     return Scaffold(
@@ -169,7 +169,7 @@ class _TelaDetalhesFazendaState extends State<TelaDetalhesFazenda> {
         side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
       ),
       child: InkWell(
-        onTap: () => _confirmarDelecao(context, fazenda),
+        onTap: () => _confirmarDelecao(fazenda),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -213,7 +213,7 @@ class _TelaDetalhesFazendaState extends State<TelaDetalhesFazenda> {
     );
   }
 
-  void _confirmarDelecao(BuildContext context, Propriedade fazenda) async {
+  void _confirmarDelecao(Propriedade fazenda) async {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

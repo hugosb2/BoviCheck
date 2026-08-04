@@ -162,7 +162,7 @@ class _FormPesagemState extends State<FormPesagem> {
                         label: 'Animal',
                         svgIcone: IconesApp.iconAnimalSvg,
                         valorSelecionado: _animalIdSelecionado,
-                        itens: provedor.animais.map((a) {
+                        itens: provedor.animais.where((a) => a.isAtivo).map((a) {
                           return DropdownMenuItem(
                             value: a.id,
                             child: Text('${a.brinco} - ${a.nome ?? "S/N"}'),

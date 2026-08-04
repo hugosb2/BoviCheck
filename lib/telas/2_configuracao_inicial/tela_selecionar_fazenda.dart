@@ -83,7 +83,7 @@ class _TelaSelecionarFazendaState extends State<TelaSelecionarFazenda> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _SecaoTituloCustom(titulo: 'Suas Propriedades'),
+                      const _SecaoTituloCustom(titulo: 'Suas Propriedades'),
                       IconButton(
                         onPressed: () => _mostrarOpcoesAdicionar(context),
                         icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),

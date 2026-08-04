@@ -27,7 +27,7 @@ class _TelaHistoricoReproducaoState extends State<TelaHistoricoReproducao> {
     if (eventos.isEmpty) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Histórico Reprodutivo'),
+        appBar: const AppBarPadrao(titulo: 'Histórico Reprodutivo'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -57,7 +57,7 @@ class _TelaHistoricoReproducaoState extends State<TelaHistoricoReproducao> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Histórico Reprodutivo'),
+      appBar: const AppBarPadrao(titulo: 'Histórico Reprodutivo'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
@@ -118,7 +118,7 @@ class _TelaHistoricoReproducaoState extends State<TelaHistoricoReproducao> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Natalidade Geral', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('Natalidade Geral', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$nascimentos nascimentos • ${nascimentos > 0 ? "Baseado em $femeas fêmeas" : "Sem dados"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),

@@ -1,3 +1,5 @@
+import 'package:uuid/uuid.dart';
+
 class Animal {
   final String id;
   final String fazendaId;
@@ -21,7 +23,7 @@ class Animal {
   final double? valorVenda;
 
   Animal({
-    required this.id,
+    String? id,
     required this.fazendaId,
     required this.loteId,
     required this.brinco,
@@ -41,7 +43,7 @@ class Animal {
     this.motivoSaida,
     this.pesoVendaKg,
     this.valorVenda,
-  });
+  }) : id = id ?? const Uuid().v4();
 
   // --- Métodos do Diagrama de Classes ---
 

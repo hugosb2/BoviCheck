@@ -24,7 +24,7 @@ class _TelaHistoricoGMDState extends State<TelaHistoricoGMD> {
     if (pesagens.isEmpty) {
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBarPadrao(titulo: 'Ganho Médio Diário'),
+        appBar: const AppBarPadrao(titulo: 'Ganho Médio Diário'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +81,7 @@ class _TelaHistoricoGMDState extends State<TelaHistoricoGMD> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBarPadrao(titulo: 'Ganho Médio Diário'),
+      appBar: const AppBarPadrao(titulo: 'Ganho Médio Diário'),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
@@ -148,7 +148,7 @@ class _TelaHistoricoGMDState extends State<TelaHistoricoGMD> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('GMD Médio', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      const Text('GMD Médio', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                       Text('$total animais com GMD calculado', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),
