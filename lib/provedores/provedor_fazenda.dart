@@ -33,6 +33,7 @@ class ProvedorFazenda extends ChangeNotifier {
 
   // Getters Calculados (Necessários para Dashboard e IA)
   int get totalAnimais => _animais.length;
+  int get totalAnimaisAtivos => _animais.where((a) => a.isAtivo).length;
   int get totalPiquetes => _piquetes.length;
 
   int get totalAnimaisDoentes {
@@ -191,6 +192,13 @@ class ProvedorFazenda extends ChangeNotifier {
     }
   }
 
+  Future<void> excluirPiquete(String piqueteId) async {
+    await BancoDadosServico.instancia.deletePiquete(piqueteId);
+    if (_propriedadeAtiva != null) {
+      await carregarPiquetes(_propriedadeAtiva!.id);
+    }
+  }
+
   // --- CRUD ANIMAIS ---
   Future<void> carregarAnimais(String fazendaId) async {
     try {
@@ -212,6 +220,50 @@ class ProvedorFazenda extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  // --- EXCLUSÕES (Eventos, Animais e Piquetes) ---
+
+  Future<void> excluirAnimal(String animalId) async {
+    await BancoDadosServico.instancia.deleteAnimal(animalId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> excluirPesagem(String eventoId) async {
+    await BancoDadosServico.instancia.deletePesagem(eventoId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> excluirEventoReprodutivo(String eventoId) async {
+    await BancoDadosServico.instancia.deleteEventoReprodutivo(eventoId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> excluirProducaoLeite(String eventoId) async {
+    await BancoDadosServico.instancia.deleteProducaoLeite(eventoId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> excluirEventoSanitario(String eventoId) async {
+    await BancoDadosServico.instancia.deleteEventoSanitario(eventoId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
+  }
+
+  Future<void> excluirAbate(String eventoId) async {
+    await BancoDadosServico.instancia.deleteAbate(eventoId);
+    if (_propriedadeAtiva != null) {
+      await carregarAnimais(_propriedadeAtiva!.id);
+    }
   }
 
   // Limpeza (Logout)

@@ -7,6 +7,7 @@ import '../../estilos/tema.dart';
 import '../../estilos/cores.dart';
 import '../../provedores/provedor_fazenda.dart';
 import '../../servicos/ia_gemini_cliente.dart';
+import '../../servicos/rag/modelo_documento.dart';
 
 class TelaIAConsultor extends StatefulWidget {
   const TelaIAConsultor({super.key});
@@ -18,6 +19,10 @@ class TelaIAConsultor extends StatefulWidget {
 class _TelaIAConsultorState extends State<TelaIAConsultor> {
   bool _carregando = false;
   String? _analiseResultado;
+  List<DocumentoRAG> _fontes = [];
+  List<double> _scores = [];
+  bool _usouRAG = false;
+  bool _usouGemini = false;
   String? _erro;
 
   @override
@@ -50,18 +55,31 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
         'local':
             '${provedor.propriedadeAtiva!.cidade}/${provedor.propriedadeAtiva!.estado}',
         'totalAnimais': provedor.totalAnimais,
+        'totalAnimaisAtivos': provedor.totalAnimaisAtivos,
         'distribuicao': {
           'machos': provedor.animais.where((a) => a.sexo == 'M').length,
           'femeas': provedor.animais.where((a) => a.sexo == 'F').length,
         },
         'lotes': provedor.piquetes.map((p) => p.nome).toList(),
+        // Indicadores para RAG
+        'animaisDoentes': provedor.totalAnimaisDoentes,
+        'indicadores': {
+          'taxaMortalidade': provedor.taxaMortalidade,
+          'mediaGMD': provedor.mediaGMD,
+          'totalLeiteMes': provedor.totalLeiteMes,
+          'totalNascimentos': provedor.totalNascimentos.toDouble(),
+        },
       };
 
-      final resultado = await IAGeminiCliente().analisarRebanho(dadosParaIA);
+      final resultado = await IAGeminiCliente().analisarRebanhoComRAG(dadosParaIA);
 
       if (mounted) {
         setState(() {
-          _analiseResultado = resultado;
+          _analiseResultado = resultado.texto;
+          _fontes = resultado.fontes;
+          _scores = resultado.retrievals.map((r) => r.score).toList();
+          _usouRAG = resultado.usouRAG;
+          _usouGemini = resultado.usouGemini;
         });
       }
     } catch (e) {
@@ -144,9 +162,8 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
                       children: [
                         const CircularProgressIndicator(),
                         const SizedBox(height: 24),
-                        // CORREÇÃO DA ANIMAÇÃO: Usando shimmer ao invés de callback complexo
                         Text(
-                              'Analisando rebanho...',
+                              'Analisando rebanho com RAG...',
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.bold,
@@ -156,7 +173,7 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
                             .shimmer(duration: 1.seconds),
                         const SizedBox(height: 8),
                         Text(
-                          'Isso pode levar alguns segundos.',
+                          'Recuperando contexto técnico + Gemini.',
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
@@ -164,30 +181,157 @@ class _TelaIAConsultorState extends State<TelaIAConsultor> {
                   )
                 : _erro != null
                 ? Center(child: Text(_erro!))
-                : Markdown(
-                    data: _analiseResultado ?? '',
+                : SingleChildScrollView(
                     padding: const EdgeInsets.all(24),
-                    styleSheet: MarkdownStyleSheet(
-                      h1: theme.textTheme.headlineMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
-                      h2: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      // Removido parâmetro marginTop que não existia na versão da lib
-                      blockquoteDecoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border(
-                          left: BorderSide(
-                            color: theme.colorScheme.primary,
-                            width: 4,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Badges RAG/Gemini
+                        Wrap(
+                          spacing: 8,
+                          children: [
+                            Chip(
+                              label: Text(_usouRAG ? 'RAG: ON' : 'RAG: OFF'),
+                              backgroundColor: _usouRAG
+                                  ? Colors.green.shade100
+                                  : Colors.grey.shade200,
+                              avatar: Icon(
+                                _usouRAG ? Icons.library_books : Icons.library_books_outlined,
+                                size: 18,
+                              ),
+                            ),
+                            Chip(
+                              label: Text(_usouGemini ? 'Gemini: ON' : 'Offline'),
+                              backgroundColor: _usouGemini
+                                  ? theme.colorScheme.primaryContainer
+                                  : Colors.orange.shade100,
+                              avatar: Icon(
+                                _usouGemini ? Icons.cloud_done : Icons.cloud_off,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        MarkdownBody(
+                          data: _analiseResultado ?? '',
+                          styleSheet: MarkdownStyleSheet(
+                            h1: theme.textTheme.headlineMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                            ),
+                            h2: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            blockquoteDecoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border(
+                                left: BorderSide(
+                                  color: theme.colorScheme.primary,
+                                  width: 4,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ).animate().fadeIn(),
+                        if (_fontes.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          Divider(color: theme.colorScheme.outlineVariant),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(Icons.menu_book_rounded,
+                                  size: 20, color: theme.colorScheme.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Fontes Recuperadas (RAG)',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...List.generate(_fontes.length, (i) {
+                            final doc = _fontes[i];
+                            final score = i < _scores.length ? _scores[i] : 0;
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          doc.titulo,
+                                          style: theme.textTheme.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          'score ${score.toStringAsFixed(3)}',
+                                          style: theme.textTheme.labelSmall?.copyWith(
+                                            color: theme.colorScheme.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${doc.fonte} • ${doc.categoria}',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    doc.conteudo,
+                                    style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Wrap(
+                                    spacing: 6,
+                                    children: doc.tags
+                                        .map((t) => Chip(
+                                              label: Text(t, style: const TextStyle(fontSize: 10)),
+                                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              visualDensity: VisualDensity.compact,
+                                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                                            ))
+                                        .toList(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ],
+                    ).animate().fadeIn(),
+                  ),
           ),
         ],
       ),

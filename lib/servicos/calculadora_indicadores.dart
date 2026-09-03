@@ -21,6 +21,7 @@ class CalculadoraIndicadores {
     required this.animais,
     required this.pesagens,
     required this.reprodutivos,
+
     required this.leite,
     required this.inicio,
     required this.fim,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../../estilos/icones.dart';
 import '../../../provedores/provedor_fazenda.dart';
 import '../tela_dashboard.dart';
@@ -12,8 +13,30 @@ import '../../5_ia_consultor/tela_ia_consultor.dart';
 import '../../11_configuracoes/tela_configuracoes.dart';
 import '../../2_configuracao_inicial/tela_selecionar_fazenda.dart';
 
-class GavetaMenu extends StatelessWidget {
+class GavetaMenu extends StatefulWidget {
   const GavetaMenu({super.key});
+
+  @override
+  State<GavetaMenu> createState() => _GavetaMenuState();
+}
+
+class _GavetaMenuState extends State<GavetaMenu> {
+  String _versao = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarVersao();
+  }
+
+  Future<void> _carregarVersao() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() => _versao = 'v${info.version}+${info.buildNumber}');
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +151,7 @@ class GavetaMenu extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'v1.1.0',
+                      _versao,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.outline,
                       ),

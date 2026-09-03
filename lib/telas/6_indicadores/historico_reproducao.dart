@@ -49,7 +49,16 @@ class _TelaHistoricoReproducaoState extends State<TelaHistoricoReproducao> {
       );
     }
 
-    final nascimentos = eventos.where((e) => e.tipo == 'Parto').length;
+    // Alinhado à tela de Indicadores (período padrão de 12 meses):
+    // natalidade = partos nos últimos 365 dias / fêmeas aptas (>= 24 meses).
+    final agora = DateTime.now();
+    final inicioPeriodo = agora.subtract(const Duration(days: 365));
+    final nascimentos = eventos
+        .where((e) =>
+            e.tipo == 'Parto' &&
+            !e.data.isBefore(inicioPeriodo) &&
+            !e.data.isAfter(agora))
+        .length;
     final femeas = animais.where((a) => a.sexo == 'F' && a.calcularIdadeMeses() >= 24).length;
     final natalidade = femeas > 0 ? (nascimentos / femeas) * 100 : 0.0;
 
@@ -118,8 +127,8 @@ class _TelaHistoricoReproducaoState extends State<TelaHistoricoReproducao> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Natalidade Geral', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-                      Text('$nascimentos nascimentos • ${nascimentos > 0 ? "Baseado em $femeas fêmeas" : "Sem dados"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
+                      const Text('Natalidade Geral (12 meses)', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                      Text('$nascimentos nascimentos no período • ${nascimentos > 0 ? "Baseado em $femeas fêmeas aptas" : "Sem dados no período"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
                     ],
                   ),
                 ),
